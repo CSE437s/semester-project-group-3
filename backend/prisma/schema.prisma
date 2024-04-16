@@ -21,6 +21,43 @@ model User {
   followers       Follow[]             @relation("UserFollowing")
   following       Follow[]             @relation("UserFollowers")
   saved_exercises UserSavedExercises[]
+  scheduled_workouts        ScheduledWorkout[]
+  posts          Post[]
+  likes          Like[]
+  workout_likes  WorkoutLike[]
+  workout_comments          WorkoutComment[]
+  post_comments   PostComment[]
+}
+
+model Post {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  imageUrl     String?   // image is optional (url field will be used if we decide to move image storage to S3 or similar service)
+  image        Bytes?    // image is optional
+  caption      String?   // caption also optional, but we enforce on frontend that at least one of imageUrl or caption is present 
+  userId       Int       
+  user         User      @relation(fields: [userId], references: [id])
+  likes        Like[]   
+  comments     PostComment[]  
+}
+
+model Like {
+  id         Int   @id @default(autoincrement())
+  userId     Int   
+  postId     Int  
+  user       User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post       Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  @@unique([userId, postId]) // prevents duplicate likes from the same user for the same post
+}
+
+model PostComment {
+  id         Int     @id @default(autoincrement())
+  content    String
+  createdAt  DateTime  @default(now())
+  postId     Int
+  post       Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId     Int
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model UserSavedExercises {
@@ -64,6 +101,46 @@ model Workout {
   routines     Routine[]
   tags         Tag[]
   user         User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  scheduled_workouts ScheduledWorkout[]
+  likes       WorkoutLike[]
+  comments    WorkoutComment[]
+}
+
+// have to define a seaparate model for workout likes (probably could have set this up smarter, oops)
+model WorkoutLike {
+  id         Int      @id @default(autoincrement())
+  userId     Int   
+  workoutId  Int  
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workout    Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  @@unique([userId, workoutId]) // prevents duplicate likes from the same user for the same workout
+}
+
+model WorkoutComment {
+  id          Int     @id @default(autoincrement())
+  content     String
+  createdAt    DateTime  @default(now())
+  workoutId   Int
+  workout     Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  userId      Int
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+
+//Create copies of workout, routines, sets
+//Change api endpoints to keep changes consistent for all uncompleted scheduledworkouts
+model ScheduledWorkout {
+  id Int @id @default(autoincrement())
+  date DateTime @db.Date
+  user         User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id      Int
+  workout Workout? @relation(fields: [workout_id], references: [id])
+  workout_id Int?
+  completion CompletionStatus @default(scheduled)
+  routines ScheduledRoutine[]
+  name         String     @db.VarChar(255)
+  difficulty   Difficulty
+  description  String
 }
 
 model Routine {
@@ -76,6 +153,16 @@ model Routine {
   sets        DefaultSet[]
 }
 
+model ScheduledRoutine {
+  id Int @id @default(autoincrement())
+  workout ScheduledWorkout @relation(fields: [workout_id], references: [id], onDelete: Cascade)
+  exercise_id Int
+  rest        Int @default(60)
+  workout_id  Int
+  exercise    Exercise     @relation(fields: [exercise_id], references: [id], onDelete: Cascade)
+  sets ScheduledSet[]
+}
+
 model DefaultSet {
   id           Int          @id @default(autoincrement())
   repetitions  Int @default(8)
@@ -83,7 +170,16 @@ model DefaultSet {
   // duration_set DurationSet?
   routine      Routine      @relation(fields: [routine_id], references: [id], onDelete: Cascade)
   routine_id   Int
-  set_order Int
+}
+
+model ScheduledSet {
+  id           Int          @id @default(autoincrement())
+  repetitions  Int 
+  weight_lbs   Int 
+  routine      ScheduledRoutine      @relation(fields: [routine_id], references: [id], onDelete: Cascade)
+  routine_id   Int
+  completed Boolean
+  rpe Int?
 }
 
 // model DurationSet {
@@ -100,6 +196,7 @@ model Exercise {
   description        String
   video_path         String
   routines           Routine[]
+  scheduled_routines           ScheduledRoutine[]
   muscles            Muscle[]
   tags               Tag[]                @relation("ExerciseToTag")
   embedding          Float[]
@@ -140,4 +237,12 @@ enum Difficulty {
 enum RoutineType {
   default
   duration
+}
+
+enum CompletionStatus {
+  scheduled
+  inProgress
+  complete
+  incomplete //ended but did not complete
+  skipped
 }

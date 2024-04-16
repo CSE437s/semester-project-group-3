@@ -78,36 +78,9 @@ const EditWorkoutPlanScreen = ({ navigation }) => {
       });
       if (response.status == 200) {
         DeviceEventEmitter.emit("editWorkoutEvent");
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: workoutFrom,
-            params: { 
-              workoutFrom: workoutFromFrom,
-              prevPage: prevPage,
-              workout_id: workout_id
-            },
-          })
-        )
-        // Alert.alert("Workout edited successfully", "", [
-        //   {
-        //     text: "Ok",
-        //     onPress: navigation.dispatch(
-        //       CommonActions.navigate({
-        //         name: workoutFrom,
-        //         params: { 
-        //           workoutFrom: workoutFromFrom,
-        //           prevPage: prevPage,
-        //           workout_id: workout_id
-        //         },
-        //       })
-        //     ),
-        //     // onPress: () => navigation.navigate("IndividualWorkoutScreen", { 
-        //     //   workout_id: workout_id, 
-        //     //   workoutFrom: "PersonalProfile", 
-        //     //   prevPage: "PersonalProfile"
-        //     // }),
-        //   },
-        // ]);
+        navigation.navigate("IndividualWorkoutScreen", {
+          workout_id: workout_id,
+        });
       }
     } catch (error) {
       if (error.response) {
@@ -130,62 +103,52 @@ const EditWorkoutPlanScreen = ({ navigation }) => {
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <SafeAreaView style={styles.container}>
         {/* <TouchableOpacity onPress={() => navigation.goBack()}> */}
-        {/* <TouchableOpacity onPress={() => navigation.dispatch(
-          CommonActions.navigate({
-            name: workoutFrom,
-            params: { 
-              workoutFrom: workoutFromFrom,
-              prevPage: prevPage,
-              workout_id: workout_id
-            },
-          })
-        )}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <BackArrowIcon></BackArrowIcon>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
         {loading ? (
           <Text>Loading content...</Text>
         ) : (
           <ScrollView automaticallyAdjustKeyboardInsets={true}>
+            <Text style={styles.titleText}> Edit Workout Plan </Text>
 
-              <Text style={styles.titleText}> Edit Workout Plan </Text>
-
-              {/* <Text style={styles.space}>Name: </Text> */}
-              {/* <TextInput
+            {/* <Text style={styles.space}>Name: </Text> */}
+            {/* <TextInput
                 style={styles.input}
                 value={name}
                 onChangeText={setName}
                 maxLength={100}
               ></TextInput> */}
 
-              <Text style={styles.subtitleText}>Workout Title</Text>
-              <TextInput
-                value={name}
-                onChangeText={setName}
-                placeholder="Workout Name"
-                style={styles.input}
-              />
+            <Text style={styles.subtitleText}>Workout Title</Text>
+            <TextInput
+              value={name}
+              onChangeText={setName}
+              placeholder="Workout Name"
+              style={styles.input}
+            />
 
-              <Text style={styles.subtitleText}>Description</Text>
-              <TextInput
-                value={description}
-                onChangeText={setDescription}
-                placeholder="Description / Notes"
-                multiline={true}
-                style={[styles.input, styles.descriptionInput]}
-              />
+            <Text style={styles.subtitleText}>Description</Text>
+            <TextInput
+              value={description}
+              onChangeText={setDescription}
+              placeholder="Description / Notes"
+              multiline={true}
+              style={[styles.input, styles.descriptionInput]}
+            />
 
-              <Text style={styles.subtitleText}>Difficulty</Text>
-              <SelectList
-                setSelected={(val) => setSelected(val)}
-                data={difficulties}
-                save="value"
-                search={false}
-                minHeight={100}
-                maxHeight={120}
-                placeholder={selected}
-              ></SelectList>
+            <Text style={styles.subtitleText}>Difficulty</Text>
+            <SelectList
+              setSelected={(val) => setSelected(val)}
+              data={difficulties}
+              save="value"
+              search={false}
+              minHeight={100}
+              maxHeight={120}
+              placeholder={selected}
+            ></SelectList>
 
-              {/* <View style={styles.submit_button}>
+            {/* <View style={styles.submit_button}>
                 <Button
                   title="Edit Workout"
                   onPress={() => {
@@ -198,34 +161,37 @@ const EditWorkoutPlanScreen = ({ navigation }) => {
                   color="#6A5ACD"
                 ></Button>
               </View> */}
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity 
-                  style={[styles.button, styles.saveButton]} 
-                  onPress={() => {
-                      if (name.length > 0) {
-                        handleEditWorkout();
-                      } else {
-                        Alert.alert("Workout name cannot be empty");
-                      }
-                    }}
-                >
-                  <Text style={styles.saveButtonText}>Save</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={
-                  () => navigation.dispatch(
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={[styles.button, styles.saveButton]}
+                onPress={() => {
+                  if (name.length > 0) {
+                    handleEditWorkout();
+                  } else {
+                    Alert.alert("Workout name cannot be empty");
+                  }
+                }}
+              >
+                <Text style={styles.saveButtonText}>Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.cancelButton]}
+                onPress={() =>
+                  navigation.dispatch(
                     CommonActions.navigate({
                       name: workoutFrom,
-                      params: { 
+                      params: {
                         workoutFrom: workoutFromFrom,
                         prevPage: prevPage,
-                        workout_id: workout_id
+                        workout_id: workout_id,
                       },
                     })
-                  )}
-                >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-              </View>
+                  )
+                }
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
           </ScrollView>
         )}
       </SafeAreaView>
@@ -236,52 +202,52 @@ const EditWorkoutPlanScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
-    marginTop: '10%',
+    marginTop: "10%",
   },
   input: {
-    width: '100%',
-    maxWidth: '100%',
+    width: "100%",
+    maxWidth: "100%",
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 8,
     padding: 15,
-    backgroundColor: '#f7f7f7',
+    backgroundColor: "#f7f7f7",
   },
   descriptionInput: {
     minHeight: 100,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginTop: 16
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    marginTop: 16,
   },
   button: {
     padding: 10,
     borderRadius: 8,
-    width: '45%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: "45%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   saveButton: {
-    backgroundColor: '#695acd',
+    backgroundColor: "#695acd",
   },
   cancelButton: {
-    borderColor: '#cd695a',
+    borderColor: "#cd695a",
     borderWidth: 2,
   },
   saveButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
   },
   cancelButtonText: {
-    color: '#cd695a',
-    fontWeight: 'bold',
+    color: "#cd695a",
+    fontWeight: "bold",
   },
   titleText: {
     fontSize: 24,

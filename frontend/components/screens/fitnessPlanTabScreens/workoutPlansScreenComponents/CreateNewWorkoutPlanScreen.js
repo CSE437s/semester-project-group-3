@@ -19,11 +19,7 @@ import { Text, View } from "@gluestack-ui/themed";
 import { Octicons } from "@expo/vector-icons";
 import BackArrowIcon from "../../../icons/BackArrowIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  SelectList,
-  MultipleSelectList,
-} from "react-native-dropdown-select-list";
-import { CommonActions } from "@react-navigation/native";
+import { SelectList } from "react-native-dropdown-select-list";
 
 const CreateNewWorkoutPlanScreen = ({ route, navigation }) => {
   const [name, setName] = useState("");
@@ -56,7 +52,7 @@ const CreateNewWorkoutPlanScreen = ({ route, navigation }) => {
       });
       if (response.status == 201) {
         DeviceEventEmitter.emit("createWorkoutEvent");
-        navigation.navigate("PersonalProfile")
+        navigation.navigate("PersonalProfile");
         // Alert.alert("Workout created successfully", "", [
         //   {
         //     text: "Ok",
@@ -99,38 +95,37 @@ const CreateNewWorkoutPlanScreen = ({ route, navigation }) => {
             <BackArrowIcon></BackArrowIcon>
         </TouchableOpacity> */}
         <ScrollView automaticallyAdjustKeyboardInsets={true}>
+          <Text style={styles.titleText}> Create New Workout Plan </Text>
 
-            <Text style={styles.titleText}> Create New Workout Plan </Text>
+          <TextInput
+            value={name}
+            onChangeText={setName}
+            placeholder="Title"
+            style={styles.input}
+          />
 
-            <TextInput
-              value={name}
-              onChangeText={setName}
-              placeholder="Title"
-              style={styles.input}
-            />
+          <TextInput
+            value={description}
+            onChangeText={setDescription}
+            placeholder="Description / Notes"
+            multiline={true}
+            style={[styles.input, styles.descriptionInput]}
+          />
 
-            <TextInput
-              value={description}
-              onChangeText={setDescription}
-              placeholder="Description / Notes"
-              multiline={true}
-              style={[styles.input, styles.descriptionInput]}
-            />
+          <Text style={styles.subtitleText}>Difficulty</Text>
+          <SelectList
+            setSelected={(val) => setSelected(val)}
+            data={difficulties}
+            save="value"
+            search={false}
+            minHeight={100}
+            maxHeight={120}
+            placeholder={selected}
+          ></SelectList>
 
-            <Text style={styles.subtitleText}>Difficulty</Text>
-              <SelectList
-                setSelected={(val) => setSelected(val)}
-                data={difficulties}
-                save="value"
-                search={false}
-                minHeight={100}
-                maxHeight={120}
-                placeholder={selected}
-              ></SelectList>
+          <View style={styles.space}></View>
 
-            <View style={styles.space}></View>
-
-            {/* <Text style={styles.space}>Notes: </Text>
+          {/* <Text style={styles.space}>Notes: </Text>
             <TextInput
               style={styles.input}
               value={description}
@@ -141,7 +136,7 @@ const CreateNewWorkoutPlanScreen = ({ route, navigation }) => {
               maxHeight={100}
             ></TextInput> */}
 
-            {/* <View style={styles.submit_button}>
+          {/* <View style={styles.submit_button}>
               <Button
                 title="Create Workout"
                 onPress={() => {
@@ -154,20 +149,20 @@ const CreateNewWorkoutPlanScreen = ({ route, navigation }) => {
                 color="#6A5ACD"
               ></Button>
             </View> */}
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity 
-                style={[styles.button, styles.saveButton]} 
-                onPress={() => {
-                    if (name.length > 0) {
-                      handleCreateWorkout();
-                    } else {
-                      Alert.alert("Workout name cannot be empty");
-                    }
-                  }}
-              >
-                <Text style={styles.saveButtonText}>Create</Text>
-              </TouchableOpacity>
-              {/* onPress={() => {
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={[styles.button, styles.saveButton]}
+              onPress={() => {
+                if (name.length > 0) {
+                  handleCreateWorkout();
+                } else {
+                  Alert.alert("Workout name cannot be empty");
+                }
+              }}
+            >
+              <Text style={styles.saveButtonText}>Create</Text>
+            </TouchableOpacity>
+            {/* onPress={() => {
               navigation.dispatch(
                 CommonActions.navigate({
                   name: prevPage,
@@ -175,17 +170,13 @@ const CreateNewWorkoutPlanScreen = ({ route, navigation }) => {
                 })
               )
             }} */}
-              <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={
-                () => navigation.dispatch(
-                  CommonActions.navigate({
-                    name: prevPage,
-                    params: { prevPage: prevPage },
-                  })
-                )}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={[styles.button, styles.cancelButton]}
+              onPress={() => navigation.goBack()}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </TouchableWithoutFeedback>
@@ -195,53 +186,53 @@ const CreateNewWorkoutPlanScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingTop: 20,
     paddingHorizontal: 20,
-    marginTop: '10%',
+    marginTop: "10%",
   },
   input: {
-    width: '100%',
-    maxWidth: '100%',
+    width: "100%",
+    maxWidth: "100%",
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 8,
     padding: 15,
-    backgroundColor: '#f7f7f7',
+    backgroundColor: "#f7f7f7",
   },
   descriptionInput: {
     minHeight: 100,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginTop: 16
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    marginTop: 16,
   },
   button: {
     padding: 10,
     borderRadius: 8,
-    width: '45%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: "45%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   saveButton: {
-    backgroundColor: '#695acd',
+    backgroundColor: "#695acd",
   },
   cancelButton: {
-    borderColor: '#cd695a',
+    borderColor: "#cd695a",
     borderWidth: 2,
   },
   saveButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
   },
   cancelButtonText: {
-    color: '#cd695a',
-    fontWeight: 'bold',
+    color: "#cd695a",
+    fontWeight: "bold",
   },
   titleText: {
     fontSize: 24,

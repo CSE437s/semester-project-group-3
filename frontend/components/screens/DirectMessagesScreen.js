@@ -3,8 +3,6 @@ import { StyleSheet, TouchableOpacity } from "react-native";
 import { Text, View } from "@gluestack-ui/themed";
 
 const DirectMessagesScreen = ({ route, navigation }) => {
-  const prevPage = route.params?.prevPage;
-
   return (
     <View style={styles.container}>
       <Text>This is the DMs screen</Text>
@@ -13,7 +11,7 @@ const DirectMessagesScreen = ({ route, navigation }) => {
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.navigate(prevPage)}
+            onPress={() => navigation.goBack()}
           >
             <Text style={{ color: "white" }}>Go Back</Text>
           </TouchableOpacity>

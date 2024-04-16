@@ -10,7 +10,7 @@ import {
   Image,
 } from "react-native";
 import { View, VStack, Button, ButtonText, set } from "@gluestack-ui/themed";
-import { MaterialIcons } from "react-native-vector-icons";
+import { MaterialIcons, Entypo, MaterialCommunityIcons } from "react-native-vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { formatDistanceToNow } from "date-fns";
 
@@ -19,24 +19,27 @@ import { formatDistanceToNow } from "date-fns";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
+import WorkoutBlock from "../../buildingBlocks/WorkoutBlock";
+import PostBlock from "../../buildingBlocks/PostBlock";
+
 import { BACKEND_URL } from "@env";
 
 const UserProfileScreen = ({ route, navigation }) => {
   const userIdFromRoute = route.params?.userId;
 
-  console.log("bm - userIdFromRoute: ", userIdFromRoute);
 
   const [userId, setUserId] = useState(userIdFromRoute); // id of user we want to display profile for (empty string means current user's profile)
   const [currentUserId, setCurrentUserId] = useState(""); // id of currently logged in user
 
   const [userData, setUserData] = useState(null);
 
-  const [activeTab, setActiveTab] = useState('workouts'); // 'workouts' or 'favoriteExercises'
+  const [activeTab, setActiveTab] = useState("workouts"); // 'workouts' or 'favoriteExercises' or 'posts'
 
   const [refreshing, setRefreshing] = useState(false);
 
   const [workouts, setWorkouts] = useState([]);
   const [favoriteExercises, setFavoriteExercises] = useState([]);
+  const [posts, setPosts] = useState([]);
 
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
@@ -47,10 +50,15 @@ const UserProfileScreen = ({ route, navigation }) => {
   // if logged in user is looking at another user's profile, this will be set based on whether they follow them or not
   const [isFollowing, setIsFollowing] = useState(false);
 
+  // -1 means no post comment blocks are open, otherwise it is the id of the post that has the comment block open
+  const [openPostCommentBlock, setOpenPostCommentBlock] = useState(-1);
+
+  // -1 means no workout comment blocks are open, otherwise it is the id of the workout that has the comment block open
+  const [openWorkoutCommentBlock, setOpenWorkoutCommentBlock] = useState(-1);
+
   // when we access from a different user's profile, we need to set the userId state
   useEffect(() => {
     if (userIdFromRoute) {
-      console.log("bm - setting userId to: ", userIdFromRoute)
       setUserId(userIdFromRoute);
     }
   }, [userIdFromRoute]);
@@ -68,7 +76,6 @@ const UserProfileScreen = ({ route, navigation }) => {
         if (userId === "") {
           setUserId(uId);
         }
-
       } catch (e) {
         console.log("bm - error getting user id: ", e);
       }
@@ -84,7 +91,6 @@ const UserProfileScreen = ({ route, navigation }) => {
         const response = await axios.get(
           BACKEND_URL + `/user/follows/${currentUserId}/${userId}`
         );
-        console.log("bm - response from isFollowing: ", response.data);
         setIsFollowing(response.data.follows);
       } catch (e) {
         console.log("bm - error checking if following: ", e);
@@ -95,7 +101,6 @@ const UserProfileScreen = ({ route, navigation }) => {
 
   // when userId is not null and has changed, we need to fetch the user's data
   useEffect(() => {
-    console.log("bm - fetching user data useEffect reached");
     if (userId) {
       // fetch user data
       fetchUserData();
@@ -104,18 +109,17 @@ const UserProfileScreen = ({ route, navigation }) => {
   }, [userId]);
 
   // if userId is populated, then we should be re-fetching data every time the page is navigated to
-  // TODO: I think this is causing an error by running before the userId has been updated
   useFocusEffect(
     useCallback(() => {
       if (userId) {
         fetchUserData();
         getFavoriteExercises();
+        getPosts();
       }
     }, [userId])
-  )
+  );
 
   useEffect(() => {
-    // console.log("bm - setIsLoading useEffect reached");
     if (currentUserId !== "" && userData !== null && userId) {
       setIsLoading(false);
     }
@@ -130,39 +134,44 @@ const UserProfileScreen = ({ route, navigation }) => {
     const parsedWorkouts = userData.workouts.map((workout) => {
       return {
         id: workout.id,
+        username: workout.user.username,
         name: workout.name,
+        difficulty: workout.difficulty,
+        description: workout.description,
         timeCreated: workout.time_created,
-      }
-    })
+        likes: workout.likes,
+        comments: workout.comments
+      };
+    });
     setWorkouts(parsedWorkouts);
 
     getFavoriteExercises();
-  }, [userData])
+  }, [userData]);
 
   const getFavoriteExercises = async () => {
     try {
-      const response = await axios.get(BACKEND_URL + `/exercises/saved/${userId}`);
+      const response = await axios.get(
+        BACKEND_URL + `/exercises/saved/${userId}`
+      );
       const parsedExercises = response.data.map((exercise) => {
         return {
           id: exercise.id,
           name: exercise.name,
           timeCreated: exercise.saved,
-        }
-      })
-      // console.log("bm - setting favorite exercises to: ", parsedExercises)
+        };
+      });
       setFavoriteExercises(parsedExercises);
     } catch (e) {
       console.log("bm - error fetching favorite exercises: ", e);
     }
-  }
+  };
 
-  // fetch dat associated with current user and populate the userData state
+  // fetch data associated with current user and populate the userData state
   const fetchUserData = async () => {
     try {
       // fetch user data
       const response = await axios.get(BACKEND_URL + `/user/${userId}`);
       setUserData(response.data);
-      // console.log("bm - set user data: ", response.data);
     } catch (e) {
       console.log("bm - error fetching user data: ", e);
     }
@@ -176,7 +185,7 @@ const UserProfileScreen = ({ route, navigation }) => {
     }
     fetchUserData();
     getFavoriteExercises();
-  }
+  };
 
   const handleFollow = async () => {
     const curUserId = await AsyncStorage.getItem("user_id");
@@ -191,8 +200,6 @@ const UserProfileScreen = ({ route, navigation }) => {
           userId: parseInt(currentUserId),
         }
       );
-      // console.log("bm - response from handleFollow: ", response.data);
-      // console.log("bm - about to set isFollowing to true");
       setIsFollowing(true);
     } catch (e) {
       console.log("bm - error following user: ", e);
@@ -200,8 +207,6 @@ const UserProfileScreen = ({ route, navigation }) => {
   };
 
   const handleUnfollow = async () => {
-    console.log("bm - handleUnfollow reached");
-    console.log("bm - currentUserId: ", currentUserId);
     try {
       const response = await axios.post(
         BACKEND_URL + `/user/unfollow/${userId}`,
@@ -209,8 +214,6 @@ const UserProfileScreen = ({ route, navigation }) => {
           userId: parseInt(currentUserId),
         }
       );
-      console.log("bm - response from handleUnfollow: ", response.data);
-      console.log("bm - about to set isFollowing to false")
       // now need to update the isFollowing state
       setIsFollowing(false);
     } catch (e) {
@@ -218,21 +221,24 @@ const UserProfileScreen = ({ route, navigation }) => {
     }
   };
 
-  const renderWorkoutItem = ({item}) => {
-    return (
-      <TouchableOpacity
-        style={styles.workoutPlan}
-        onPress={() => navigation.navigate("IndividualWorkoutScreen", { workout_id: item.id, workoutFrom: "UserProfile" })}
-      >
-        <View style={styles.workoutMainContent}>
-          <Text style={styles.workoutName}>{item.name}</Text>
-        </View>
-        
-        <Text style={styles.workoutTime}>created {formatDistanceToNow(new Date(item.timeCreated), { addSuffix: true })}</Text>
+  const renderWorkoutItem = ({ item }) => {
+    const handleWorkoutPress = () => {
+      navigation.navigate("IndividualWorkoutScreen", {
+        workout_id: item.id,
+      });
+    }
 
-      </TouchableOpacity>
-    );
-  }
+    return (
+      <WorkoutBlock 
+        item={item}
+        currentUserId={currentUserId}
+        handleWorkoutPress={handleWorkoutPress}
+        fromProfilePage={true}
+        openCommentBlock={openWorkoutCommentBlock}
+        setOpenCommentBlock={setOpenWorkoutCommentBlock}
+      />
+    )
+  };
 
   const goToExercise = async (id) => {
     const response = await axios.get(BACKEND_URL + `/exercises/one/${id}`);
@@ -243,10 +249,60 @@ const UserProfileScreen = ({ route, navigation }) => {
     });
   };
 
-  // silly guy image lol
-  const image = require("../../../assets/Man-Doing-Air-Squats-A-Bodyweight-Exercise-for-Legs.png");
+  const getPosts = async () => {
+    try {
+      const response = await axios.get(
+        BACKEND_URL + `/user/${userId}/posts`
+      );
+      const parsedPosts = response.data.map((post) => {
+        return {
+          id: post.id,
+          title: post.title,
+          caption: post.caption,
+          timeCreated: post.createdAt,
+          username: post.user.username,
+          likes: post.likes,
+          comments: post.comments,
+        };
+      });
+      setPosts(parsedPosts);
+    } catch (e) {
+      console.log("error fetching posts by user ", e)
+    }
+  };
 
-  const renderExerciseItem = ({item}) => {
+  // get posts every second (to allow for real time comment updating)
+  // TODO this is a hacky solution, we should move to using websockets if time allows
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      // console.log("fetching posts...")
+      if (activeTab === "posts") {
+        getPosts();
+      } else if (activeTab === "workouts") {
+        console.log("fetching user data...")
+        fetchUserData();
+      }
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [activeTab])
+
+  const renderPostItem = ({ item }) => {
+    return (
+      <PostBlock 
+        item={item}
+        currentUserId={currentUserId}
+        fromProfilePage={true}
+        openCommentBlock={openPostCommentBlock}
+        setOpenCommentBlock={setOpenPostCommentBlock}
+      />
+    )
+  }
+
+  // silly guy image lol
+  // const image = require("../../../assets/Man-Doing-Air-Squats-A-Bodyweight-Exercise-for-Legs.png");
+
+  const renderExerciseItem = ({ item }) => {
     return (
       <TouchableOpacity
         style={styles.workoutPlan}
@@ -255,37 +311,21 @@ const UserProfileScreen = ({ route, navigation }) => {
         }}
       >
         <View style={styles.workoutMainContent}>
-          <Text style={styles.workoutName}>{item.name.split(" ").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")}</Text>
+          <Text style={styles.workoutName}>
+            {item.name
+              .split(" ")
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" ")}
+          </Text>
         </View>
-        
-        <Text style={styles.workoutTime}>favorited {formatDistanceToNow(new Date(item.timeCreated), { addSuffix: true })}</Text>
 
+        <Text style={styles.workoutTime}>
+          favorited{" "}
+          {formatDistanceToNow(new Date(item.timeCreated), { addSuffix: true })}
+        </Text>
       </TouchableOpacity>
     );
-    // return (
-    //   <TouchableOpacity
-    //     key={item.id}
-    //     style={styles.exerciseContainer}
-    //     onPress={() => {
-    //       goToExercise(item.id);
-    //     }}
-    //   >
-    //     <Image source={image} style={styles.exerciseImage} />
-    //     <Text
-    //       style={styles.exerciseName}
-    //       numberOfLines={1}
-    //       ellipsizeMode="tail"
-    //     >
-    //       {item.name
-    //         .split(" ")
-    //         .map(
-    //           (word) => word.charAt(0).toUpperCase() + word.slice(1)
-    //         )
-    //         .join(" ")}
-    //     </Text>
-    //   </TouchableOpacity>
-    // )
-  }
+  };
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -308,72 +348,117 @@ const UserProfileScreen = ({ route, navigation }) => {
         <MaterialIcons
           name="account-circle"
           size={95}
-          color="#000" 
+          color="#000"
           style={styles.avatar}
         />
         <View style={styles.userInfo}>
           <Text style={styles.username}>{userData.username}</Text>
           <View style={styles.stats}>
             <TouchableOpacity
-              onPress={() => navigation.navigate("followersList", { userId: userData.id, navigatingFrom: "UserProfile"})}
+              onPress={() =>
+                navigation.navigate("followersList", {
+                  userId: userData.id,
+                  navigatingFrom: "UserProfile",
+                })
+              }
             >
               <Text style={styles.statText}>{followers} Followers</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
-              onPress={() => navigation.navigate("followingList", { userId: userData.id, navigatingFrom: "UserProfile"})}
+              onPress={() =>
+                navigation.navigate("followingList", {
+                  userId: userData.id,
+                  navigatingFrom: "UserProfile",
+                })
+              }
             >
               <Text style={styles.statText}>{following} Following</Text>
             </TouchableOpacity>
-            
           </View>
         </View>
       </View>
       <View style={styles.buttonsAndIconsContainer}>
         <TouchableOpacity style={styles.button} onPress={handleFollowUnfollow}>
-          <Text style={styles.buttonText}>{isFollowing ? 'Unfollow' : 'Follow'}</Text>
+          <Text style={styles.buttonText}>
+            {isFollowing ? "Unfollow" : "Follow"}
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.icon} onPress={() => setActiveTab('workouts')}>
-          <MaterialIcons
-            name="fitness-center"
-            size={30}
-            color={activeTab === 'workouts' ? '#6A5ACD' : '#aaa'} //
-          />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.icon} onPress={() => setActiveTab('favoriteExercises')}>
-          <MaterialIcons
-            name="star-border"
-            size={30}
-            color={activeTab === 'favoriteExercises' ? '#6A5ACD' : '#aaa'}
-          />
-        </TouchableOpacity>
+        <TouchableOpacity
+            style={styles.icon}
+            onPress={() => {
+              setActiveTab("workouts")
+            }}
+          >
+            <MaterialIcons
+              name="fitness-center"
+              size={30}
+              color={activeTab === "workouts" ? "#6A5ACD" : "#aaa"} 
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.icon}
+            onPress={() => {
+              getPosts()
+              setActiveTab("posts")
+            }}
+          >
+            <Entypo
+              name="camera"
+              size={30}
+              color={activeTab === "posts" ? "#6A5ACD" : "#aaa"}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.icon}
+            onPress={() => {
+              setActiveTab("favoriteExercises")
+            }}
+          >
+            <MaterialIcons
+              name="star-border"
+              size={30}
+              color={activeTab === "favoriteExercises" ? "#6A5ACD" : "#aaa"}
+            />
+          </TouchableOpacity>
       </View>
 
       <View style={styles.divider} />
 
       <View style={styles.contentContainerHeader}>
-        <Text style={styles.contentContainerText}>{(activeTab === 'workouts') ? "Workout Plans" : "Favorite Exercises"}</Text>
+        <Text style={styles.contentContainerText}>
+          {activeTab === "workouts" && "Workout Plans"}
+          {activeTab === "favoriteExercises" && "Favorite Exercises"}
+          {activeTab === "posts" && "Posts"}
+        </Text>
       </View>
 
       <View style={styles.contentContainer}>
-        {(activeTab === 'workouts' && workouts.length > 0) && (
+        {activeTab === "workouts" && workouts.length > 0 && (
           <FlatList
             data={workouts}
-            keyExtractor={item => item.id.toString()}
+            keyExtractor={(item) => item.id.toString()}
             renderItem={renderWorkoutItem}
             refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-              />
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
           />
-        )} 
-        {(activeTab === 'favoriteExercises' && favoriteExercises.length > 0) && (
+        )}
+        {activeTab === "favoriteExercises" && favoriteExercises.length > 0 && (
           <FlatList
             data={favoriteExercises}
-            keyExtractor={item => item.id.toString()}
+            keyExtractor={(item) => item.id.toString()}
             renderItem={renderExerciseItem}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          />
+        )}
+        {activeTab === "posts" && posts.length > 0 &&(
+          <FlatList
+            data={posts}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderPostItem}
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
@@ -394,46 +479,44 @@ const styles = StyleSheet.create({
     alignItems: "left", // specifies where items are aligned horizontally
     paddingTop: "6%",
     paddingHorizontal: "6%",
-    paddingBottom: "5%"
+    paddingBottom: "5%",
   },
   profileContainer: {
     flexDirection: "row",
-    alignItems: "center", 
+    alignItems: "center",
   },
   userInfo: {
-    flexDirection: 'column',
-    marginLeft: '5%',
+    flexDirection: "column",
+    marginLeft: "5%",
   },
   contentContainerHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 10,
-    marginBottom: 0, 
+    marginBottom: 0,
   },
   contentContainerText: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 20,
-    flex: 1, 
+    flex: 1,
   },
   contentContainerButton: {
     marginTop: 3,
   },
   username: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 18,
   },
   stats: {
-    flexDirection: 'col',
+    flexDirection: "col",
     marginTop: 5,
   },
   statText: {
     marginRight: 15,
     fontSize: 16,
   },
-  avatar: {
-
-  },
+  avatar: {},
   buttonContainer: {
     justifyContent: "space-around",
     paddingHorizontal: 10,
@@ -453,7 +536,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#6A5ACD",
     padding: 10,
     borderRadius: 5,
-    width: '60%',
+    width: "50%",
     marginTop: 5,
   },
   buttonText: {
@@ -466,40 +549,38 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   divider: {
-    height: 1, 
-    backgroundColor: '#D3D3D3',
-    width: '100%',
-    marginTop: 20, 
+    height: 1,
+    backgroundColor: "#D3D3D3",
+    width: "100%",
+    marginTop: 20,
     marginBottom: 10,
   },
   buttonsAndIconsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    alignSelf: 'center', // center icons horitzontally
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    alignSelf: "center", // center icons horitzontally
   },
   contentContainer: {
     marginTop: 5,
-    marginBottom: '60%' // contols how close to the footerNavigator that the content (FlatLists) is
+    marginBottom: "60%", // contols how close to the footerNavigator that the content (FlatLists) is
   },
   workoutName: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 8,
     fontSize: 23,
   },
-  workoutMainContent: {
-
-  },
+  workoutMainContent: {},
   workoutDetail: {
     fontSize: 14,
   },
   workoutTime: {
     fontSize: 12,
-    color: '#666', 
-    alignSelf: 'flex-end', 
+    color: "#666",
+    alignSelf: "flex-end",
   },
   workoutPlan: {
-    backgroundColor: '#FFF',
+    backgroundColor: "#FFF",
     paddingTop: 10,
     paddingBottom: 15,
     paddingHorizontal: 20,
@@ -507,7 +588,7 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     marginRight: 20,
     borderRadius: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 2,
       height: 2,
@@ -519,7 +600,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   workoutName: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 8,
     fontSize: 23,
   },
@@ -530,13 +611,59 @@ const styles = StyleSheet.create({
     width: 300,
     height: 175,
     borderRadius: 10,
-    marginLeft: '2%', // controls where the image is horizontally (how close to either side of screen)
+    marginLeft: "2%", // controls where the image is horizontally (how close to either side of screen)
   },
   exerciseName: {
     marginTop: 8,
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
+  },
+  postDetail: {
+    fontSize: 14,
+  },
+  postTime: {
+    fontSize: 12,
+    color: "#666",
+    // alignSelf: "flex-end",
+  },
+  post: {
+    backgroundColor: "#FFF",
+    paddingTop: 10,
+    paddingBottom: 15,
+    paddingHorizontal: 20,
+    marginVertical: 8,
+    marginLeft: 16,
+    marginRight: 20,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+    // flexDirection: "column",
+    // justifyContent: "space-between",
+  },
+  postCaption: {
+    fontSize: 16,
+  },
+  postBottomContent: {
+    marginTop: 5,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  postLikesContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  postLikesCount: {
+    marginLeft: 5,
+    fontSize: 16,
+    color: "black",
   },
 });
 

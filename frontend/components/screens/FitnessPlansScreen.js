@@ -5,7 +5,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import TopBarMenu from "../TopBarMenu";
 // import WorkoutPlansScreen from './fitnessPlanTabScreens/WorkoutPlansScreen';
-import FitnessPlansScreenNavigator from "../FitnessPlanScreenNavigator";
+// import FitnessPlansScreenNavigator from "../FitnessPlanScreenNavigator";
 
 const Stack = createNativeStackNavigator();
 

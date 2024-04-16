@@ -20,7 +20,11 @@ import { BACKEND_URL } from "@env";
 import BackArrowIcon from "../../../icons/BackArrowIcon";
 import Routine from "./Routine";
 import RoutineInfo from "./RoutineInfo";
-import { AntDesign, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  AntDesign,
+  MaterialIcons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 
 import {
   SelectList,
@@ -100,7 +104,7 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
       setWorkout(result.data);
       setRoutines(result.data.routines);
       setWorkoutOwnerId(result.data.user_id);
-      setWorkoutOwnerUsername(result.data.user.username)
+      setWorkoutOwnerUsername(result.data.user.username);
       setLoading(false);
     } catch (error) {
       if (error.response) {
@@ -120,7 +124,7 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
         BACKEND_URL + `/workout/delete/${workout_id}`
       );
       if (result.status == 200) {
-        navigation.navigate(workoutFrom, { prevPage: prevPage })
+        navigation.navigate(workoutFrom, { prevPage: prevPage });
       }
       // if (result.status == 200) {
       //   Alert.alert("Workout deleted successfully", "", [
@@ -294,13 +298,6 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
     }
   };
 
-  const returnToWorkoutPlans = () => {
-    navigation.navigate(workoutFrom, {
-      prevPage: prevPage,
-      workout_id: workout_id,
-    });
-  };
-
   // fetch workout on initial render and if we try to access a new workout (meaning wokrout_id changed)
   useEffect(() => {
     setLoading(true);
@@ -319,9 +316,7 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
 
   return (
     <>
-      <TouchableWithoutFeedback
-        onPress={dismissKeyboard}
-      >
+      <TouchableWithoutFeedback onPress={dismissKeyboard}>
         <ScrollView style={styles.content}>
           {/* <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={0}> */}
           <TouchableOpacity
@@ -329,7 +324,9 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
               styles.chevron,
               { flexDirection: "row", alignItems: "center" },
             ]}
-            onPress={returnToWorkoutPlans}
+            onPress={() => {
+              navigation.goBack();
+            }}
           >
             <BackArrowIcon></BackArrowIcon>
             {/* <Text> Back to your Workout Plans</Text> */}
@@ -345,10 +342,21 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
                       <Text style={styles.titleText}>{workout.name}</Text>
                       <View style={styles.topContainerIcons}>
                         <TouchableOpacity onPress={handleEditWorkout}>
-                          <MaterialCommunityIcons name="pencil" size={24} color="#695acd" />
+                          <MaterialCommunityIcons
+                            name="pencil"
+                            size={24}
+                            color="#695acd"
+                          />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={handleDeleteWorkout} style={styles.topContainerDeleteIcon}>
-                          <MaterialCommunityIcons name="delete" size={24} color="#cd695a" />
+                        <TouchableOpacity
+                          onPress={handleDeleteWorkout}
+                          style={styles.topContainerDeleteIcon}
+                        >
+                          <MaterialCommunityIcons
+                            name="delete"
+                            size={24}
+                            color="#cd695a"
+                          />
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -356,14 +364,19 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
                 ) : (
                   <Text style={styles.titleTextNotOwned}>{workout.name}</Text>
                 )}
-                <Text style={styles.topContainerText}>Author: {workoutOwnerUsername}</Text>
                 <Text style={styles.topContainerText}>
-                  Difficulty: {workout.difficulty
+                  Author: {workoutOwnerUsername}
+                </Text>
+                <Text style={styles.topContainerText}>
+                  Difficulty:{" "}
+                  {workout.difficulty
                     .split(" ")
                     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
                     .join(" ")}
                 </Text>
-                <Text style={styles.topContainerText}>{workout.description}</Text>
+                <Text style={styles.topContainerText}>
+                  {workout.description}
+                </Text>
                 {/* {isOwnedByCurrentUser && (
                   <View style={styles.topButtonContainer}>
                     <TouchableOpacity
@@ -384,27 +397,29 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
 
               <View style={styles.exerciseHeader}>
                 <Text style={styles.exercisesText}>Exercises</Text>
-                {(isOwnedByCurrentUser && !addingWorkout) && (
+                {isOwnedByCurrentUser && !addingWorkout && (
                   <TouchableOpacity
                     style={styles.addIcon}
                     onPress={() => {
                       setAddingWorkout(true);
                     }}
                   >
-                    <MaterialIcons name="add-circle" size={32} color="#6A5ACD" />
+                    <MaterialIcons
+                      name="add-circle"
+                      size={32}
+                      color="#6A5ACD"
+                    />
                     {/* <Text style={styles.addNewText}>Add a New Exercise</Text> */}
                   </TouchableOpacity>
                 )}
               </View>
-              
 
               <View>
                 {routines.length === 0 &&
-                  (!isOwnedByCurrentUser && (
                     <Text style={styles.no_exercises_text}>
                       This workout plan does not have any exercises yet.
                     </Text>
-                  ))}
+                  }
               </View>
 
               <View>
@@ -526,33 +541,33 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   topContainer: {
-    backgroundColor: 'grey',
+    backgroundColor: "grey",
     padding: 16,
   },
   topContainerTitleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   topContainerTitle: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 22,
     flex: 1, // Allows text to take up maximum width minus icons
   },
   topContainerIcons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     width: 60, // will probably need to adjust this later
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginRight: '3%'
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginRight: "3%",
   },
   topContainerDeleteIcon: {
     marginLeft: 16,
   },
   topContainerText: {
     fontSize: 16,
-    textAlign: 'left', // left justifies text
-    color: 'black',
+    textAlign: "left", // left justifies text
+    color: "black",
   },
   exerciseHeader: {
     display: "flex",
@@ -562,7 +577,7 @@ const styles = StyleSheet.create({
   },
   addIcon: {
     marginTop: 15,
-    marginRight: '3%',
+    marginRight: "3%",
   },
   addNewButton: {
     padding: 10,
@@ -670,14 +685,14 @@ const styles = StyleSheet.create({
     paddingBottom: "1%",
     paddingTop: "4%",
     maxWidth: "75%",
-    color: "black"
+    color: "black",
   },
   titleTextNotOwned: {
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "left",
     paddingTop: "2%",
-    color: "black"
+    color: "black",
   },
   subTitleText: {
     fontSize: 16,
@@ -706,7 +721,8 @@ const styles = StyleSheet.create({
   },
   workoutInfo: {
     backgroundColor: "lightgrey",
-    paddingVertical: 15,
+    paddingTop: 15,
+    paddingBottom: 15,
     borderRadius: 10,
     paddingHorizontal: 12,
   },

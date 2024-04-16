@@ -1,220 +1,74 @@
 import React from "react";
 
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import {
-  MaterialIcons,
-  Ionicons,
-  MaterialCommunityIcons,
-  Feather,
-  SimpleLineIcons,
-} from "@expo/vector-icons";
-
 import FriendFeedScreen from "./screens/FriendFeedScreen";
-import FitnessPlansScreen from "./screens/FitnessPlansScreen";
-import UploadScreen from "./screens/UploadScreen";
-import PublicFeedScreen from "./screens/PublicFeedScreen";
 import PersonalProfileScreen from "./screens/PersonalProfileScreen";
 
-import JournalScreen from "./screens/personalProfileTabSreens/JournalScreen";
 import FollowingScreen from "./screens/personalProfileTabSreens/FollowingScreen";
 import FollowersScreen from "./screens/personalProfileTabSreens/FollowersScreen";
 import ExerciseScreen from "./screens/contentViewScreens/ExerciseScreen";
 import SearchScreen from "./screens/universalSearchScreens/SearchScreen";
-import DirectMessagesScreen from "./screens/DirectMessagesScreen";
-import SavedExercisesScreen from "./screens/SavedExercisesScreen";
 import WorkoutPlansScreen from "./screens/fitnessPlanTabScreens/WorkoutPlansScreen";
 import CreateNewWorkoutPlanScreen from "./screens/fitnessPlanTabScreens/workoutPlansScreenComponents/CreateNewWorkoutPlanScreen";
 import EditWorkoutPlanScreen from "./screens/fitnessPlanTabScreens/workoutPlansScreenComponents/EditWorkoutPlanScreen";
 import IndividualWorkoutPlanScreen from "./screens/fitnessPlanTabScreens/workoutPlansScreenComponents/IndividualWorkoutPlanScreen";
 import UserProfileScreen from "./screens/contentViewScreens/UserProfileScreen";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import CalendarScreen from "./screens/calendarScreens/CalendarScreen";
+import ScheduleWorkoutScreen from "./screens/calendarScreens/ScheduleWorkoutScreen";
+import IndividualScheduledWorkoutScreen from "./screens/calendarScreens/IndividualScheduledWorkoutScreen";
+const Stack = createNativeStackNavigator();
 
-const Tab = createBottomTabNavigator();
-
-export default function FooterNavigator({ handleAuthChange }) {
-  const handleSwitchPage = (page) => {
-    console.log(page);
-    navigation.navigate(page);
-  };
-
+const FooterNavigator = ({ handleAuthChange }) => {
   return (
-    <Tab.Navigator
-      initialRouteName="PersonalProfile"
+    <Stack.Navigator
+      initialRouteName="FriendFeed"
       screenOptions={{
         headerShown: false,
-        tabBarShowLabel: false,
+        animation: "none",
+        // tabBarShowLabel: false,
       }}
     >
-      
-      {/* <Tab.Screen
-        name="FitnessPlans"
-        component={FitnessPlansScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <MaterialCommunityIcons
-              name="weight-lifter"
-              size={24}
-              color={focused ? "#6A5ACD" : "grey"}
-            />
-          ),
-        }}
-      /> */}
-      {/* Changed to only display workout plans */}
-      {/* <Tab.Screen
-        name="FitnessPlans"
-        component={WorkoutPlansScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <MaterialCommunityIcons
-              name="weight-lifter"
-              size={24}
-              color={focused ? "#6A5ACD" : "grey"}
-            />
-          ),
-        }}
-      /> */}
-      {/* <Tab.Screen
-        name="Upload"
-        component={UploadScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <Feather
-              name="upload"
-              size={24}
-              color={focused ? "#6A5ACD" : "grey"}
-            />
-          ),
-        }}
-      /> */}
-      {/* <Tab.Screen
-        name="PublicFeed"
-        component={PublicFeedScreen}
-        options={{
-          tabBarIcon: ({ color, size, focused }) => (
-            <SimpleLineIcons
-              name="layers"
-              size={24}
-              color={focused ? "#6A5ACD" : "grey"}
-            />
-            // <MaterialCommunityIcons name="layers-triple-outline" size={24} color={focused ? 'blue' : 'grey'} />
-          ),
-        }}
-      /> */}
-      {/* Changed to display saved exercises */}
-      {/* <Tab.Screen
-        name="SavedExercises"
-        component={SavedExercisesScreen}
-        options={{
-          tabBarIcon: ({ color, size, focused }) => (
-            <SimpleLineIcons
-              name="layers"
-              size={24}
-              color={focused ? "#6A5ACD" : "grey"}
-            />
-            // <MaterialCommunityIcons name="layers-triple-outline" size={24} color={focused ? 'blue' : 'grey'} />
-          ),
-        }}
-      /> */}
+      {/* Changed to display workout plans and saved exercises */}
+      <Stack.Screen name="FitnessPlans" component={WorkoutPlansScreen} />
 
-      <Tab.Screen
-        name="search"
-        component={SearchScreen}
-        options={{
-          tabBarIcon: ({ color, size, focused }) => (
-            <MaterialIcons
-              name="search"
-              size={24}
-              color={focused ? "#6A5ACD" : "grey"}
-            />
-          ),
-        }}
-      />
+      <Stack.Screen name="search" component={SearchScreen} />
 
-      <Tab.Screen
-        name="PersonalProfile"
-        initialParams={{ userId: "" }}
-        options={{
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name="person-circle-sharp"
-              size={24}
-              color={focused ? "#6A5ACD" : "grey"}
-            />
-          ),
-        }}
-      >
+      <Stack.Screen name="PersonalProfile" initialParams={{ userId: "" }}>
         {(props) => (
           <PersonalProfileScreen
             {...props}
             handleAuthChange={handleAuthChange}
           />
         )}
-      </Tab.Screen>
+      </Stack.Screen>
 
-      <Tab.Screen
-        name="FriendFeed"
-        component={FriendFeedScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <Ionicons
-              name="people-sharp"
-              size={24}
-              color={focused ? "#6A5ACD" : "grey"}
-            />
-          ),
-        }}
-      />
+      <Stack.Screen name="FriendFeed" component={FriendFeedScreen} />
 
-      <Tab.Screen
-        name="journal"
-        component={JournalScreen}
-        options={{ tabBarButton: () => null }}
-      />
-      <Tab.Screen
-        name="followingList"
-        component={FollowingScreen}
-        options={{ tabBarButton: () => null }}
-      />
-      <Tab.Screen
-        name="followersList"
-        component={FollowersScreen}
-        options={{ tabBarButton: () => null }}
-      />
-      <Tab.Screen
-        name="ExerciseScreen"
-        component={ExerciseScreen}
-        options={{ tabBarButton: () => null }}
-      />
-      <Tab.Screen
-        name="dms"
-        component={DirectMessagesScreen}
-        options={{ tabBarButton: () => null }}
-      />
-      <Tab.Screen
+      {/* <Stack.Screen name="journal" component={JournalScreen} /> */}
+      <Stack.Screen name="followingList" component={FollowingScreen} />
+      <Stack.Screen name="followersList" component={FollowersScreen} />
+      <Stack.Screen name="ExerciseScreen" component={ExerciseScreen} />
+      {/* <Stack.Screen name="dms" component={DirectMessagesScreen} /> */}
+      <Stack.Screen
         name="CreateNewWorkoutPlan"
         component={CreateNewWorkoutPlanScreen}
-        options={{ tabBarButton: () => null }}
       />
-      <Tab.Screen
-        name="EditWorkoutPlan"
-        component={EditWorkoutPlanScreen}
-        options={{ tabBarButton: () => null }}
-      />
-      <Tab.Screen
+      <Stack.Screen name="EditWorkoutPlan" component={EditWorkoutPlanScreen} />
+      <Stack.Screen
         name="IndividualWorkoutScreen"
         component={IndividualWorkoutPlanScreen}
-        options={{ tabBarButton: () => null }}
       />
-      <Tab.Screen
-        name="UserProfile"
-        component={UserProfileScreen}
-        options={{ tabBarButton: () => null }}
+      <Stack.Screen name="UserProfile" component={UserProfileScreen} />
+      <Stack.Screen name="Calendar" component={CalendarScreen} />
+      <Stack.Screen
+        name="ScheduleWorkout"
+        component={ScheduleWorkoutScreen}
+      ></Stack.Screen>
+      <Stack.Screen
+        name="IndividualScheduledWorkout"
+        component={IndividualScheduledWorkoutScreen}
       />
-    </Tab.Navigator>
+    </Stack.Navigator>
   );
-}
-
-{
-  /* <Stack.Screen name="signupScreen">
-          {props => <SignupScreen {...props} handleAuthChange={handleAuthChange} />}
-</Stack.Screen> */
-}
+};
+export default FooterNavigator;

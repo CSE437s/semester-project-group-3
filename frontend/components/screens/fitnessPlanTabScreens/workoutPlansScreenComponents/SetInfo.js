@@ -10,7 +10,8 @@ const SetInfo = ({
   handleRemoveSet,
   editing,
   fetchRoutineInfo,
-  setEditingSetTopLevel
+  editingSetTopLevel,
+  setEditingSetTopLevel,
 }) => {
   const [editingSet, setEditingSet] = useState(false);
 
@@ -20,25 +21,26 @@ const SetInfo = ({
         <Text>
           Set {parseInt(index) + 1}: {item.repetitions} x {item.weight_lbs}lbs
         </Text>
-        {editing && (
-          <View style={styles.setButtonContainer}>
-            <TouchableOpacity
-              onPress={() => {
-                setEditingSet(true);
-                setEditingSetTopLevel(true);
-              }}
-            >
-              <FontAwesome name="edit" size={18} color="#695acd" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                handleRemoveSet(item.id);
-              }}
-            >
-              <Ionicons name="remove-circle-outline" size={18} color="red" />
-            </TouchableOpacity>
-          </View>
-        )}
+        {editing &&
+          (editingSetTopLevel || (
+            <View style={styles.setButtonContainer}>
+              <TouchableOpacity
+                onPress={() => {
+                  setEditingSet(true);
+                  setEditingSetTopLevel(true);
+                }}
+              >
+                <FontAwesome name="edit" size={18} color="#695acd" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  handleRemoveSet(item.id);
+                }}
+              >
+                <Ionicons name="remove-circle-outline" size={18} color="red" />
+              </TouchableOpacity>
+            </View>
+          ))}
       </View>
       {editingSet && (
         <SetEditor

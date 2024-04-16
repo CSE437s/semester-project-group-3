@@ -6,31 +6,24 @@ import {
   TouchableOpacity,
   Button,
   ScrollView,
+  SafeAreaView,
 } from "react-native";
 import axios from "axios";
 import { BACKEND_URL } from "@env";
 import YoutubePlayer from "react-native-youtube-iframe";
-import { useIsFocused, CommonActions } from "@react-navigation/native";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, AntDesign } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import BackArrowIcon from "../../icons/BackArrowIcon";
+import AddExerciseToWorkoutFooter from "./AddExerciseToWorkoutFooter";
 
 const ExerciseScreen = ({ route, navigation }) => {
   const [exerciseData, setExerciseData] = useState({});
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [saved, setSaved] = useState(false);
-
-  const exercise_id = route.params?.exercise_id;
-  const prevPage = route.params?.prevPage;
-  const exerciseFrom = route.params?.exerciseFrom;
-  const workoutFromFrom = route.params?.workoutFromFrom;
-
-  console.log("bm - workoutFromFrom in ExerciseScreen: ", workoutFromFrom)
+  const [addingToWorkout, setAddingToWorkout] = useState(false);
+  const [workoutId, setWorkoutId] = useState(-1);
 
   // if we come to this from a workout page, we save the id so that we can navigate back to it
-  const workoutId = route.params?.workout_id;
-  // const isFocused = useIsFocused();
 
   const toggleExpanded = () => {
     setExpanded(!expanded);
@@ -95,7 +88,8 @@ const ExerciseScreen = ({ route, navigation }) => {
 
   useEffect(() => {
     initializeData();
-  });
+    setWorkoutId(route.params?.workoutId);
+  }, []);
 
   //video player stuff
   const [playing, setPlaying] = useState(false);
@@ -107,129 +101,144 @@ const ExerciseScreen = ({ route, navigation }) => {
   }, []);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity
-        style={styles.backArrow}
-        onPress={() => {
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: exerciseFrom,
-              params: { prevPage: prevPage, workout_id: workoutId, workoutFrom: workoutFromFrom },
-            })
-          );
-        }}
-      >
-        <BackArrowIcon></BackArrowIcon>
-      </TouchableOpacity>
-      {loading ? (
-        <Text>Loading...</Text>
-      ) : (
-        <View>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>
-              {exerciseData.name
-                .split(" ")
-                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(" ")}
-            </Text>
-            <TouchableOpacity onPress={handleSave}>
-              <View style={styles.star}>
-                {saved ? (
-                  <FontAwesome name="star" size={24} color="gold" />
-                ) : (
-                  <FontAwesome name="star-o" size={24} color="gray" />
-                )}
+    <>
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backArrow}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <FontAwesome name="chevron-left" size={24} color="#666666" />
+        </TouchableOpacity>
+        <View style={styles.buttonsRight}>
+          <TouchableOpacity onPress={handleSave}>
+            {saved ? (
+              <FontAwesome name="star" size={24} color="gold" />
+            ) : (
+              <FontAwesome name="star-o" size={24} color="gray" />
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setAddingToWorkout(true);
+            }}
+          >
+            <AntDesign name="pluscircleo" size={24} color="#666666" />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <SafeAreaView>
+        <ScrollView contentContainerStyle={styles.container}>
+          {loading ? (
+            <Text>Loading...</Text>
+          ) : (
+            <View>
+              <View style={styles.titleContainer}>
+                <Text style={styles.title}>
+                  {exerciseData.name
+                    .split(" ")
+                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(" ")}
+                </Text>
               </View>
-            </TouchableOpacity>
-          </View>
-          <YoutubePlayer
-            height={195}
-            play={false}
-            videoId={exerciseData.video_path}
-            onChangeState={onStateChange}
-          />
-          <ScrollView contentContainerStyle={styles.horizontalScroll} horizontal={true}>
-            {exerciseData.muscles.map((muscle) => {
-              return (
-                <TouchableOpacity
-                  key={muscle.id}
-                  style={[styles.bubble, styles.muscleGroup]}
-                >
-                  <Text style={styles.muscleGroupText}>
-                    {muscle.name
-                      .split("_")
-                      .map(
-                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
-                      )
-                      .join(" ")}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-            {exerciseData.tags.map((tag) => {
-              return (
-                <TouchableOpacity
-                  key={tag.id}
-                  style={[styles.bubble, styles.tag]}
-                >
-                  <Text style={styles.tagText}>
-                    {tag.name
-                      .split("_")
-                      .map(
-                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
-                      )
-                      .join(" ")}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-
-          <Text>
-            Difficulty:{" "}
-            {exerciseData.difficulty.replace(/^\w/, (c) => c.toUpperCase())}
-          </Text>
-          <Text>
-            Type:{" "}
-            {exerciseData.type
-              ? exerciseData.type.replace(/^\w/, (c) => c.toUpperCase())
-              : "N/A"}
-          </Text>
-          <Text>
-            Equipment Needed:{" "}
-            {exerciseData.equipment && exerciseData.equipment != "body_only"
-              ? exerciseData.equipment.replace(/^\w/, (c) => c.toUpperCase())
-              : "None"}
-          </Text>
-          {(exerciseData.description.length) > 0 && (
-            <View style={styles.instructions}>
-              <TouchableOpacity
-                onPress={toggleExpanded}
-                style={styles.toggleButton}
+              <YoutubePlayer
+                height={195}
+                play={false}
+                videoId={exerciseData.video_path}
+                onChangeState={onStateChange}
+              />
+              <ScrollView
+                contentContainerStyle={styles.horizontalScroll}
+                horizontal={true}
               >
-                <Text numberOfLines={expanded ? undefined : 4}>
-                  Instructions: {exerciseData.description}
-                </Text>
+                {exerciseData.muscles.map((muscle) => {
+                  return (
+                    <TouchableOpacity
+                      key={muscle.id}
+                      style={[styles.bubble, styles.muscleGroup]}
+                    >
+                      <Text style={styles.muscleGroupText}>
+                        {muscle.name
+                          .split("_")
+                          .map(
+                            (word) =>
+                              word.charAt(0).toUpperCase() + word.slice(1)
+                          )
+                          .join(" ")}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+                {exerciseData.tags.map((tag) => {
+                  return (
+                    <TouchableOpacity
+                      key={tag.id}
+                      style={[styles.bubble, styles.tag]}
+                    >
+                      <Text style={styles.tagText}>
+                        {tag.name
+                          .split("_")
+                          .map(
+                            (word) =>
+                              word.charAt(0).toUpperCase() + word.slice(1)
+                          )
+                          .join(" ")}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
 
-                <Text style={styles.toggleButtonText}>
-                  {expanded ? "Show Less▲" : "Show More▼"}
-                </Text>
-              </TouchableOpacity>
+              <Text>
+                Difficulty:{" "}
+                {exerciseData.difficulty.replace(/^\w/, (c) => c.toUpperCase())}
+              </Text>
+              <Text>
+                Type:{" "}
+                {exerciseData.type
+                  ? exerciseData.type.replace(/^\w/, (c) => c.toUpperCase())
+                  : "N/A"}
+              </Text>
+              <Text>
+                Equipment Needed:{" "}
+                {exerciseData.equipment && exerciseData.equipment != "body_only"
+                  ? exerciseData.equipment.replace(/^\w/, (c) =>
+                      c.toUpperCase()
+                    )
+                  : "None"}
+              </Text>
+              {exerciseData.description.length > 0 && (
+                <View style={styles.instructions}>
+                  <TouchableOpacity
+                    onPress={toggleExpanded}
+                    style={styles.toggleButton}
+                  >
+                    <Text numberOfLines={expanded ? undefined : 4}>
+                      Instructions: {exerciseData.description}
+                    </Text>
+
+                    <Text style={styles.toggleButtonText}>
+                      {expanded ? "Show Less▲" : "Show More▼"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
           )}
-          
-        </View>
+        </ScrollView>
+      </SafeAreaView>
+      {addingToWorkout && (
+        <AddExerciseToWorkoutFooter
+          setAddingToWorkout={setAddingToWorkout}
+          exercise_id={exerciseData.id}
+        ></AddExerciseToWorkoutFooter>
       )}
-    </ScrollView>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  backArrow: {
-    alignItems: "flex-start",
-    justifyContent: "center",
-    marginLeft: -20,
-  },
   bubble: {
     borderRadius: 20,
     paddingVertical: 8,
@@ -237,7 +246,6 @@ const styles = StyleSheet.create({
   },
   container: {
     paddingHorizontal: "5%",
-    paddingVertical: "13%",
     display: "flex",
     flexDirection: "column",
     justifyContent: "flex-start",
@@ -249,7 +257,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     flexGrow: 0,
-    marginBottom: 10,
+    marginVertical: 15,
   },
   instructions: {
     padding: 5,
@@ -269,13 +277,6 @@ const styles = StyleSheet.create({
   tagText: {
     color: "#FFFFFF",
   },
-  star: {
-    width: 24,
-    height: 24,
-    marginTop: 6,
-    marginLeft: 5,
-    backgroundColor: "transparent",
-  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
@@ -283,16 +284,30 @@ const styles = StyleSheet.create({
   titleContainer: {
     display: "flex",
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: 10,
-    marginTop: -10,
   },
   toggleButtonText: {
     marginTop: 3,
     marginBottom: 5,
     fontSize: 12,
     color: "#555555",
+  },
+  header: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#ebe7f7",
+    paddingTop: "13%",
+    paddingBottom: "4%",
+    paddingHorizontal: "6%",
+    marginBottom: "3%",
+  },
+  buttonsRight: {
+    display: "flex",
+    flexDirection: "row",
+    gap: 16,
   },
 });
 
