@@ -1017,6 +1017,7 @@ app.get(`/feed/workouts/:userId`, async (req, res) => {
         // we want the username of the workout owners as well
         user: {
           select: {
+            id: true,
             username: true,
           },
         },
@@ -1068,6 +1069,7 @@ app.get(`/feed/posts/:userId`, async (req, res) => {
       include: {
         user: {
           select: {
+            id: true,
             username: true,
           },
         },

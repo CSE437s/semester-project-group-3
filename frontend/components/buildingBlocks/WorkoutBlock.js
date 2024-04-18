@@ -17,7 +17,8 @@ const WorkoutBlock = ({
     handleWorkoutPress, 
     fromProfilePage,
     openCommentBlock, 
-    setOpenCommentBlock  
+    setOpenCommentBlock,
+    onNavigateToUserProfile,
 }) => {
     const [liked, setLiked] = useState(item.likes.some(like => parseInt(like.userId) === parseInt(currentUserId)));
     const [likeCount, setLikeCount] = useState(item.likes.length);
@@ -159,13 +160,15 @@ const WorkoutBlock = ({
             <View style={styles.workoutMainContent}>
                 {/* If we are rendering on a profile page, we don't need the username */}
                 {!fromProfilePage && (
-                    <Text>
-                        <Text style={styles.username}>{item.username}</Text>
-                        <Text style={styles.workoutDescription}>
+                    <View style={styles.usernameAndDescriptionContainer}>
+                        <TouchableOpacity onPress={() => onNavigateToUserProfile(item.userId)}>
+                            <Text style={styles.username}>{item.username}</Text>
+                        </TouchableOpacity>
+                        <Text>
                             {" "}
                             created a new workout plan
                         </Text>
-                    </Text>
+                    </View>
                 )}
                 <Text style={styles.workoutName}>{item.name}</Text>
             </View>
@@ -342,6 +345,11 @@ const styles = StyleSheet.create({
     postCommentIconContainer: {
         flexDirection: "row",
         marginLeft: 10,
+    },
+    usernameAndDescriptionContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 4
     },
 });
 

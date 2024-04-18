@@ -81,6 +81,7 @@ const FriendFeedScreen = ({ navigation }) => {
           type: "workout",
           id: workout.id,
           username: workout.user.username,
+          userId: workout.user.id,
           name: workout.name,
           difficulty: workout.difficulty,
           description: workout.description,
@@ -110,6 +111,7 @@ const FriendFeedScreen = ({ navigation }) => {
           caption: post.caption,
           timeCreated: post.createdAt,
           username: post.user.username,
+          userId: post.user.id,
           likes: post.likes,
           comments: post.comments,
         };
@@ -118,6 +120,15 @@ const FriendFeedScreen = ({ navigation }) => {
       setLoading(false)
     } catch (e) {
       console.log("error fetching friend posts for friendFeed page: ", e);
+    }
+  }
+
+  const onNavigateToUserProfile = (userId) => {
+    if (userId === currentUserId) {
+      navigation.navigate("PersonalProfile");
+    } else {
+      console.log("bm - navigating to user profile with userId: ", userId)
+      navigation.navigate("UserProfile", { userId });
     }
   }
 
@@ -163,6 +174,7 @@ const FriendFeedScreen = ({ navigation }) => {
             fromProfilePage={false}
             openCommentBlock={openWorkoutCommentBlock}
             setOpenCommentBlock={setOpenWorkoutCommentBlock}
+            onNavigateToUserProfile={onNavigateToUserProfile}
           />
         );
       case "post": 
@@ -173,6 +185,7 @@ const FriendFeedScreen = ({ navigation }) => {
             fromProfilePage={false}
             openCommentBlock={openPostCommentBlock}
             setOpenCommentBlock={setOpenPostCommentBlock}
+            onNavigateToUserProfile={onNavigateToUserProfile}
           />
         );
       default:

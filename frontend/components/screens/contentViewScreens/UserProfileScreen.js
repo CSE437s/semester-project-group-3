@@ -27,6 +27,8 @@ import { BACKEND_URL } from "@env";
 const UserProfileScreen = ({ route, navigation }) => {
   const userIdFromRoute = route.params?.userId;
 
+  console.log("bm - userIdFromRoute: ", userIdFromRoute)
+
 
   const [userId, setUserId] = useState(userIdFromRoute); // id of user we want to display profile for (empty string means current user's profile)
   const [currentUserId, setCurrentUserId] = useState(""); // id of currently logged in user

@@ -17,7 +17,8 @@ const PostBlock = ({
     canDelete, 
     onDeletePost, 
     openCommentBlock, 
-    setOpenCommentBlock 
+    setOpenCommentBlock,
+    onNavigateToUserProfile,
 }) => {
     const [liked, setLiked] = useState(item.likes.some(like => parseInt(like.userId) === parseInt(currentUserId)));
     const [likeCount, setLikeCount] = useState(item.likes.length);
@@ -163,7 +164,11 @@ const PostBlock = ({
     return (
         <TouchableOpacity style={styles.post} onPress={() => setCommentsOpen(!commentsOpen)} disabled={openCommentBlock !== -1 && openCommentBlock !== parseInt(item.id)}>
             <View style={styles.postHeader}>
-                {!fromProfilePage && <><Text style={styles.username}>{item.username}</Text><Text>: </Text></>}
+                {!fromProfilePage && 
+                    <TouchableOpacity onPress={() => onNavigateToUserProfile(item.userId)}>
+                        <Text style={styles.username}>{item.username}: </Text>
+                    </TouchableOpacity>
+                }
                 <View style={styles.captionAndIconContainer}>
                     <Text style={styles.postCaption}>{item.caption}</Text>
                     {canDelete && (
