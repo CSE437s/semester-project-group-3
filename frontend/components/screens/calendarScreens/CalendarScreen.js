@@ -262,11 +262,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 16,
     paddingHorizontal: "3%",
+    marginRight: 50,
   },
   addNewButton: {
     position: "absolute",
     right: "5%",
-    bottom: "10%",
+    bottom: "47%",
   },
   agendaItems: {
     width: "100%",
