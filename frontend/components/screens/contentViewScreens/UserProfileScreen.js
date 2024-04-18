@@ -563,7 +563,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     marginTop: 5,
-    marginBottom: "60%", // contols how close to the footerNavigator that the content (FlatLists) is
+    marginBottom: "100", // contols how close to the footerNavigator that the content (FlatLists) is
   },
   workoutName: {
     fontWeight: "bold",

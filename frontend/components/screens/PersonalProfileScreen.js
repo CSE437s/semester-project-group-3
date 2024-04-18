@@ -151,7 +151,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
       if (activeTab === "posts") {
         getPosts();
       } else if (activeTab === "workouts") {
-        console.log("fetching user data...")
+        // console.log("fetching user data...")
         fetchUserData();
       }
     }, 1000);
@@ -641,7 +641,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     marginTop: 5,
-    marginBottom: "60%", // contols how close to the footerNavigator that the content (FlatLists) is
+    marginBottom: "81%", // contols how close to the footerNavigator that the content (FlatLists) is
   },
   workoutName: {
     fontWeight: "bold",

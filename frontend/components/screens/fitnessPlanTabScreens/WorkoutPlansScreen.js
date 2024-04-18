@@ -176,7 +176,7 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
           </TouchableOpacity>
         </View>
         {activeTab === "workouts" ? (
-          <ScrollView>
+          <ScrollView style={styles.scrollViewContainer}>
             <View style={styles.contentContainerHeader}>
               <TouchableOpacity style={{ width: 28 }}></TouchableOpacity>
               <Text style={styles.contentContainerText}>
@@ -196,7 +196,7 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
                 return renderWorkoutItem(item);
               })
             ) : (
-              <View style={styles.container}>
+              <View style={styles.noPlansContainer}>
                 <Text style={styles.space}>
                   You currently have no workout plans.
                 </Text>
@@ -285,6 +285,13 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  scrollViewContainer: {
+    marginBottom: "35%",
+  },
+  noPlansContainer: {
+    paddingBottom: "30%",
+    alignItems: "center",
+  },
   container: {
     paddingBottom: "30%",
     alignItems: "center",

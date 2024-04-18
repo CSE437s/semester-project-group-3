@@ -272,6 +272,7 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: "5%",
     paddingVertical: "3%",
+    marginBottom: "15%",
   },
   scheduledWorkoutContainer: {
     width: "100%",
