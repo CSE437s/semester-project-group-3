@@ -10,6 +10,7 @@ import {
   Alert,
   ScrollView,
   Image,
+  Platform,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { getYoutubeMeta } from "react-native-youtube-iframe";
@@ -149,7 +150,7 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
   return (
     <>
       <SafeAreaView>
-        <View style={styles.buttonsAndIconsContainer}>
+        <View style={Platform.OS == 'ios' ? (styles.buttonsAndIconsContainer) : (styles.buttonsAndIconsContainerAndroid)}>
           <TouchableOpacity
             style={activeTab === "workouts" ? styles.iconSelected : styles.icon}
             onPress={() => setActiveTab("workouts")}
@@ -176,7 +177,7 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
           </TouchableOpacity>
         </View>
         {activeTab === "workouts" ? (
-          <ScrollView style={styles.scrollViewContainer}>
+          <ScrollView style={Platform.OS === 'ios' ? (styles.scrollViewContainer) : (styles.scrollViewContainerAndroid)}>
             <View style={styles.contentContainerHeader}>
               <TouchableOpacity style={{ width: 28 }}></TouchableOpacity>
               <Text style={styles.contentContainerText}>
@@ -219,7 +220,7 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
             {loading ? (
               <Text>Loading... </Text>
             ) : (
-              <ScrollView contentContainerStyle={styles.container}>
+              <ScrollView contentContainerStyle={Platform.OS === 'ios' ? (styles.container) : (styles.containerAndroid)}>
                 <View style={styles.contentContainerHeader}>
                   <TouchableOpacity style={{ width: 28 }}></TouchableOpacity>
                   <Text style={styles.contentContainerText}>
@@ -288,12 +289,19 @@ const styles = StyleSheet.create({
   scrollViewContainer: {
     marginBottom: "35%",
   },
+  scrollViewContainerAndroid: {
+    marginBottom: '44%',
+  },
   noPlansContainer: {
     paddingBottom: "30%",
     alignItems: "center",
   },
   container: {
     paddingBottom: "30%",
+    alignItems: "center",
+  },
+  containerAndroid: {
+    paddingBottom: "45%",
     alignItems: "center",
   },
   createNewWorkoutPlanButton: {
@@ -378,6 +386,14 @@ const styles = StyleSheet.create({
     width: "100%",
     alignSelf: "center", // center icons horitzontally
     marginBottom: 10,
+  },
+  buttonsAndIconsContainerAndroid: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    alignSelf: "center", // center icons horitzontally
+    marginBottom: 10,
+    marginTop: 30,
   },
   icon: {
     marginTop: 10,
