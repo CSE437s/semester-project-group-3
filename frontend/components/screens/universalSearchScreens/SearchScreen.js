@@ -14,6 +14,7 @@ import { BACKEND_URL } from "@env";
 import SearchScroller from "./SearchScroller";
 import SearchFilterBubble from "./SearchFilterBubble";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import FooterTab from "../../FooterTab";
 
 // import { getYoutubeMeta } from "react-native-youtube-iframe";
 
@@ -139,6 +140,7 @@ const SearchScreen = ({}) => {
   };
 
   return (
+    <>
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.topContent}>
         <TouchableOpacity
@@ -167,7 +169,7 @@ const SearchScreen = ({}) => {
               multiline={true}
               numberOfLines={2}
               textAlignVertical="top"
-              placeholderTextColor="#525252"
+              placeholderTextColor="#D3D3D3"
               value={searchBar}
               onChangeText={onChangeText}
               onKeyPress={onKeyPress}
@@ -255,6 +257,9 @@ const SearchScreen = ({}) => {
         <View style={styles.buttonContainer}></View>
       </View>
     </ScrollView>
+
+    <FooterTab focused="Search"></FooterTab>
+    </>
   );
 };
 

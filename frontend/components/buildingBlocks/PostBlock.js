@@ -161,7 +161,7 @@ const PostBlock = ({
     }, [commentsOpen]);
 
     return (
-        <TouchableOpacity style={styles.post} onPress={() => {}}>
+        <TouchableOpacity style={styles.post} onPress={() => setCommentsOpen(!commentsOpen)} disabled={openCommentBlock !== -1 && openCommentBlock !== parseInt(item.id)}>
             <View style={styles.postHeader}>
                 {!fromProfilePage && <><Text style={styles.username}>{item.username}</Text><Text>: </Text></>}
                 <View style={styles.captionAndIconContainer}>

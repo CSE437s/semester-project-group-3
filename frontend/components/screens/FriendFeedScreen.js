@@ -220,8 +220,11 @@ const FriendFeedScreen = ({ navigation }) => {
 
   return (
     <>
-      {/* <TopBarMenu onSwitchPage={handleSwitchPage} /> */}
+      
       <SafeAreaView style={styles.container}>
+        <Text style={styles.topText}>
+          Workout Plans & Posts From Friends
+        </Text>
         <FlatList
           data={sortData([...workouts, ...posts])}
           keyExtractor={(item) => item.id.toString()}
@@ -258,6 +261,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingHorizontal: 10,
   },
+  topText: {
+    fontWeight: "bold",
+    marginBottom: 20,
+    fontSize: 18,
+  }
 });
 
 export default FriendFeedScreen;
