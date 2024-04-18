@@ -52,7 +52,8 @@ const CreateNewWorkoutPlanScreen = ({ route, navigation }) => {
       });
       if (response.status == 201) {
         DeviceEventEmitter.emit("createWorkoutEvent");
-        navigation.navigate("PersonalProfile");
+        // navigation.navigate("PersonalProfile");
+        navigation.goBack();
         // Alert.alert("Workout created successfully", "", [
         //   {
         //     text: "Ok",

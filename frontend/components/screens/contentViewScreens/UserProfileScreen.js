@@ -8,19 +8,19 @@ import {
   FlatList,
   RefreshControl,
   Image,
+  Keyboard,
 } from "react-native";
 import { View, VStack, Button, ButtonText, set } from "@gluestack-ui/themed";
 import { MaterialIcons, Entypo, MaterialCommunityIcons } from "react-native-vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { formatDistanceToNow } from "date-fns";
 
-// import TopBarMenu from "../TopBarMenu";
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 import WorkoutBlock from "../../buildingBlocks/WorkoutBlock";
 import PostBlock from "../../buildingBlocks/PostBlock";
+import FooterTab from "../../FooterTab";
 
 import { BACKEND_URL } from "@env";
 
@@ -28,7 +28,6 @@ const UserProfileScreen = ({ route, navigation }) => {
   const userIdFromRoute = route.params?.userId;
 
   console.log("bm - userIdFromRoute: ", userIdFromRoute)
-
 
   const [userId, setUserId] = useState(userIdFromRoute); // id of user we want to display profile for (empty string means current user's profile)
   const [currentUserId, setCurrentUserId] = useState(""); // id of currently logged in user
@@ -57,6 +56,31 @@ const UserProfileScreen = ({ route, navigation }) => {
 
   // -1 means no workout comment blocks are open, otherwise it is the id of the workout that has the comment block open
   const [openWorkoutCommentBlock, setOpenWorkoutCommentBlock] = useState(-1);
+
+  // use this so that we don't display the footer bar when the keyboard is visible
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setKeyboardVisible(true); // Keyboard is visible
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardVisible(false); // Keyboard is hidden
+      }
+    );
+
+    // Cleanup function
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
 
   // when we access from a different user's profile, we need to set the userId state
   useEffect(() => {
@@ -470,6 +494,11 @@ const UserProfileScreen = ({ route, navigation }) => {
           />
         )}
       </View>
+
+      {/* Footer Tab shouldn't get in the way when making a new post */}
+      {!keyboardVisible && (
+        <FooterTab focused={""}></FooterTab>
+      )}
     </SafeAreaView>
   );
 };
@@ -565,7 +594,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     marginTop: 5,
-    marginBottom: "100", // contols how close to the footerNavigator that the content (FlatLists) is
+    marginBottom: "77%", // contols how close to the footerNavigator that the content (FlatLists) is
   },
   workoutName: {
     fontWeight: "bold",

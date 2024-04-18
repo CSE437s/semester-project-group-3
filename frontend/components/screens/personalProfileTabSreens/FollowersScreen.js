@@ -118,7 +118,7 @@ const FollowersScreen = ({route, navigation}) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{getTitleText()}</Text>
-        <TouchableOpacity style={styles.backButton} onPress={handleBackButtonPress}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.buttonText}>Back</Text>
         </TouchableOpacity>
       </View>

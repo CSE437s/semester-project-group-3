@@ -279,7 +279,7 @@ const SearchScreen = ({}) => {
       )}
     </ScrollView>
 
-    <FooterTab focused="Search"></FooterTab>
+    <FooterTab focused="search"></FooterTab>
     </>
   );
 };
