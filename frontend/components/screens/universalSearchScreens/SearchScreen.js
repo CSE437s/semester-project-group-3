@@ -6,6 +6,7 @@ import {
   Keyboard,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { Text, View } from "@gluestack-ui/themed";
 import BackArrowIcon from "../../icons/BackArrowIcon";
@@ -28,6 +29,11 @@ const SearchScreen = ({}) => {
   const prevPage = route.params?.prevPage;
 
   const categories = ["exercises", "workouts", "users"];
+
+  // use this to avoid displaying "no results found" before user has searched for anything
+  const [userHasSearched, setUserHasSearched] = useState(false);
+
+  const [searching, setSearching] = useState(false);
 
   const [searchBar, setSearchBar] = useState("");
   const prevSearch = useRef("");
@@ -52,6 +58,7 @@ const SearchScreen = ({}) => {
 
   //Prevent newline character
   const onChangeText = (newText) => {
+    setSearching(true);
     setSearchBar(newText.replace(/\n/g, ""));
   };
 
@@ -73,6 +80,10 @@ const SearchScreen = ({}) => {
   useEffect(() => {
     setTimeout(async () => {
       if (searchBar.length > 0 && prevSearch.current !== searchBar) {
+        if (!userHasSearched) {
+          setUserHasSearched(true);
+        }
+        setSearching(true);
         prevSearch.current = searchBar;
         try {
           const response = await axios.get(
@@ -86,6 +97,7 @@ const SearchScreen = ({}) => {
           data["smartSearch"] = smartResponse.data;
 
           setSearchData(data);
+          setSearching(false);
         } catch (error) {
           console.error(error);
         }
@@ -224,38 +236,47 @@ const SearchScreen = ({}) => {
           </>
         )}
       </ScrollView>
-      {smartSearch ? (
-        <SearchScroller
-          category={"smart search"}
-          data={searchData["smartSearch"]}
-          handleItemPress={handleItemPress}
-        ></SearchScroller>
-      ) : (
-        <></>
-      )}
-
-      {focus.length === 0 ? (
-        categories.map((category, idx) => {
-          return (
+      
+      {userHasSearched && searchBar.length > 0 && !searching ? (
+        <>
+          {smartSearch ? (
             <SearchScroller
-              key={idx}
-              category={category}
-              data={searchData[category]}
+              category={"smart search"}
+              data={searchData["smartSearch"]}
               handleItemPress={handleItemPress}
             ></SearchScroller>
-          );
-        })
-      ) : (
-        <SearchScroller
-          category={focus}
-          data={searchData[focus]}
-          handleItemPress={handleItemPress}
-        ></SearchScroller>
-      )}
+          ) : (
+            <></>
+          )}
 
-      <View style={styles.bottomContent}>
-        <View style={styles.buttonContainer}></View>
-      </View>
+          {focus.length === 0 ? (
+            categories.map((category, idx) => {
+              return (
+                <SearchScroller
+                  key={idx}
+                  category={category}
+                  data={searchData[category]}
+                  handleItemPress={handleItemPress}
+                ></SearchScroller>
+              );
+            })
+          ) : (
+            <SearchScroller
+              category={focus}
+              data={searchData[focus]}
+              handleItemPress={handleItemPress}
+            ></SearchScroller>
+          )}
+
+          <View style={styles.bottomContent}>
+            <View style={styles.buttonContainer}></View>
+          </View>
+        </>
+      ): (
+        (searching && searchBar.length > 0) && (
+          <ActivityIndicator size="large" color="#695acd" />
+        )
+      )}
     </ScrollView>
 
     <FooterTab focused="Search"></FooterTab>
