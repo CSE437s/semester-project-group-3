@@ -25,17 +25,10 @@ import FooterTab from "../../FooterTab";
 import { BACKEND_URL } from "@env";
 
 const UserProfileScreen = ({ route, navigation }) => {
-  const userIdFromRoute = route.params?.userId;
-
-  console.log("bm - userIdFromRoute: ", userIdFromRoute)
-
-  const [userId, setUserId] = useState(userIdFromRoute); // id of user we want to display profile for (empty string means current user's profile)
+  const [userId, setUserId] = useState(route.params?.userId); // id of user we want to display profile for (empty string means current user's profile)
   const [currentUserId, setCurrentUserId] = useState(""); // id of currently logged in user
-
   const [userData, setUserData] = useState(null);
-
   const [activeTab, setActiveTab] = useState("workouts"); // 'workouts' or 'favoriteExercises' or 'posts'
-
   const [refreshing, setRefreshing] = useState(false);
 
   const [workouts, setWorkouts] = useState([]);
@@ -47,7 +40,6 @@ const UserProfileScreen = ({ route, navigation }) => {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  // if logged in user is looking at own profile, this has no effect (since userId is set to currentUserId)
   // if logged in user is looking at another user's profile, this will be set based on whether they follow them or not
   const [isFollowing, setIsFollowing] = useState(false);
 
@@ -81,13 +73,19 @@ const UserProfileScreen = ({ route, navigation }) => {
     };
   }, []);
 
-
-  // when we access from a different user's profile, we need to set the userId state
   useEffect(() => {
-    if (userIdFromRoute) {
-      setUserId(userIdFromRoute);
+    if (route.params?.userId) {
+      setUserId(route.params?.userId);
     }
-  }, [userIdFromRoute]);
+  }, [route.params?.userId]),
+
+  // This will handle the focus and ensure data is refreshed when navigating back to the screen
+  useFocusEffect(
+    useCallback(() => {
+      setUserId(route.params?.userId);  // Update userId from route when focused
+      return () => console.log("Screen was unfocused");
+    }, [route.params?.userId])
+  );
 
   // fetch currently logged in user on iniital load
   useEffect(() => {
@@ -107,7 +105,7 @@ const UserProfileScreen = ({ route, navigation }) => {
       }
     };
     getCurrentUserId();
-  }, []);
+  }, [userId]);
 
   // check if the current user is following the user whose profile we are viewing
   useEffect(() => {
@@ -131,19 +129,9 @@ const UserProfileScreen = ({ route, navigation }) => {
       // fetch user data
       fetchUserData();
       getFavoriteExercises();
+      getPosts();
     }
   }, [userId]);
-
-  // if userId is populated, then we should be re-fetching data every time the page is navigated to
-  useFocusEffect(
-    useCallback(() => {
-      if (userId) {
-        fetchUserData();
-        getFavoriteExercises();
-        getPosts();
-      }
-    }, [userId])
-  );
 
   useEffect(() => {
     if (currentUserId !== "" && userData !== null && userId) {
@@ -311,7 +299,7 @@ const UserProfileScreen = ({ route, navigation }) => {
     }, 1000);
 
     return () => clearInterval(intervalId);
-  }, [activeTab])
+  }, [activeTab, userId])
 
   const renderPostItem = ({ item }) => {
     return (
@@ -354,6 +342,7 @@ const UserProfileScreen = ({ route, navigation }) => {
   };
 
   const onRefresh = async () => {
+    setUserId(route.params?.userId)
     setRefreshing(true);
     await fetchUserData();
     await getFavoriteExercises();
