@@ -430,9 +430,18 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
                 ) : (
                   <Text style={styles.titleTextNotOwned}>{workout.name}</Text>
                 )}
-                <Text style={styles.topContainerText}>
-                  Author: {workoutOwnerUsername}
-                </Text>
+                <TouchableOpacity onPress={() => {
+                  if (parseInt(workoutOwnerId) === parseInt(currentUserId)) {
+                    navigation.navigate("PersonalProfile")
+                  } else {
+                    navigation.navigate("UserProfile", { userId: workoutOwnerId })
+                  }
+                }}>
+                  <Text style={styles.topContainerText}>
+                    Author: {workoutOwnerUsername}
+                  </Text>
+                </TouchableOpacity>
+                
                 <Text style={styles.topContainerText}>
                   Difficulty:{" "}
                   {workout.difficulty
