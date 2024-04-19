@@ -10,6 +10,7 @@ import { formatDistanceToNow, set } from "date-fns";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FooterTab from "../FooterTab";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import PostBlock from "../buildingBlocks/PostBlock";
 import WorkoutBlock from "../buildingBlocks/WorkoutBlock";
@@ -234,19 +235,22 @@ const FriendFeedScreen = ({ navigation }) => {
   return (
     <>
       
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <Text style={styles.topText}>
           Workout Plans & Posts From Friends
         </Text>
-        <FlatList
-          data={sortData([...workouts, ...posts])}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderItem}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        />
-      </SafeAreaView>
+        <KeyboardAwareScrollView>
+          <FlatList
+            data={sortData([...workouts, ...posts])}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderItem}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          />
+        </KeyboardAwareScrollView>
+        
+      </View>
       <FooterTab focused="FriendFeed"></FooterTab>
     </>
   );

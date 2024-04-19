@@ -25,6 +25,8 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
 import * as ImagePicker from 'expo-image-picker';
 import WorkoutBlock from "../buildingBlocks/WorkoutBlock";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 
 import PostBlock from "../buildingBlocks/PostBlock";
 
@@ -524,17 +526,19 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
                   />
                 )}
               {activeTab === "posts" && posts.length > 0 &&(
-                <FlatList
-                  data={posts}
-                  keyExtractor={(item) => item.id.toString()}
-                  renderItem={renderPostItem}
-                  refreshControl={
-                    <RefreshControl
-                      refreshing={refreshing}
-                      onRefresh={onRefresh}
-                    />
-                  }
-                />
+                <KeyboardAwareScrollView>
+                  <FlatList
+                    data={posts}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={renderPostItem}
+                    refreshControl={
+                      <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                      />
+                    }
+                  />
+                </KeyboardAwareScrollView>
               )}
             </View>
           </>
