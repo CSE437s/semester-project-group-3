@@ -17,7 +17,11 @@ const SetInfo = ({
 
   return (
     <>
-      <View key={item.id} style={styles.card}>
+      <TouchableOpacity key={item.id} style={styles.card} onPress={
+        () => {
+        setEditingSet(true);
+        setEditingSetTopLevel(true);
+      }}>
         <Text>
           Set {parseInt(index) + 1}: {item.repetitions} x {item.weight_lbs}lbs
         </Text>
@@ -41,7 +45,7 @@ const SetInfo = ({
               </TouchableOpacity>
             </View>
           ))}
-      </View>
+      </TouchableOpacity>
       {editingSet && (
         <SetEditor
           setId={item.id}
