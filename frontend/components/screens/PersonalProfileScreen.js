@@ -276,6 +276,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
         onDeletePost={(id) => deletePost(item.id)}
         openCommentBlock={openPostCommentBlock}
         setOpenCommentBlock={setOpenPostCommentBlock}
+        onNavigateToUserProfile={onNavigateToUserProfile}
       />
     )
   }
@@ -333,6 +334,10 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
       console.error(error);
     }
   };
+
+  const onNavigateToUserProfile = (userId) => {
+    navigation.navigate("UserProfile", { userId });
+  }
 
   const submitPost = async () => {
     const formData = new FormData();

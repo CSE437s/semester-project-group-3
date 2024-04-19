@@ -15,6 +15,8 @@ import { MaterialIcons, Entypo, MaterialCommunityIcons } from "react-native-vect
 import { useFocusEffect } from "@react-navigation/native";
 import { formatDistanceToNow } from "date-fns";
 
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
@@ -184,6 +186,15 @@ const UserProfileScreen = ({ route, navigation }) => {
     }
   };
 
+  const onNavigateToUserProfile = (userId) => {
+    if (userId === currentUserId) {
+      navigation.navigate("PersonalProfile");
+    } else {
+      console.log("bm - navigating to user profile with userId: ", userId)
+      navigation.navigate("UserProfile", { userId });
+    }
+  }
+
   // fetch data associated with current user and populate the userData state
   const fetchUserData = async () => {
     try {
@@ -314,6 +325,7 @@ const UserProfileScreen = ({ route, navigation }) => {
         fromProfilePage={true}
         openCommentBlock={openPostCommentBlock}
         setOpenCommentBlock={setOpenPostCommentBlock}
+        onNavigateToUserProfile={onNavigateToUserProfile}
       />
     )
   }
@@ -493,7 +505,8 @@ const UserProfileScreen = ({ route, navigation }) => {
           />
         )}
         {activeTab === "posts" && posts.length > 0 &&(
-          <FlatList
+          <KeyboardAwareScrollView>
+            <FlatList
             data={posts}
             keyExtractor={(item) => item.id.toString()}
             renderItem={renderPostItem}
@@ -504,13 +517,10 @@ const UserProfileScreen = ({ route, navigation }) => {
               />
             }
           />
+          </KeyboardAwareScrollView>
         )}
       </View>
-
-      {/* Footer Tab shouldn't get in the way when making a new post */}
-      {!keyboardVisible && (
-        <FooterTab focused={""}></FooterTab>
-      )}
+      <FooterTab focused={""}></FooterTab>
     </SafeAreaView>
     </>
   );
