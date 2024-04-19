@@ -22,7 +22,11 @@ import WorkoutBlock from "../../buildingBlocks/WorkoutBlock";
 import PostBlock from "../../buildingBlocks/PostBlock";
 import FooterTab from "../../FooterTab";
 
+import { Icon, ArrowLeftIcon } from "@gluestack-ui/themed";
+
 import { BACKEND_URL } from "@env";
+
+import UserProfileBackIcon from "../../icons/UserProfileBackIcon";
 
 const UserProfileScreen = ({ route, navigation }) => {
   const [userId, setUserId] = useState(route.params?.userId); // id of user we want to display profile for (empty string means current user's profile)
@@ -359,7 +363,17 @@ const UserProfileScreen = ({ route, navigation }) => {
   }
 
   return (
+    <>
+    
     <SafeAreaView style={styles.container}>
+      <TouchableOpacity style={[styles.icon, styles.backButton]}>
+        <MaterialCommunityIcons
+          name="arrow-left"
+          size={30}
+          color="grey"
+          onPress={() => navigation.goBack()}
+        />
+      </TouchableOpacity>
       <View style={styles.profileContainer}>
         <MaterialIcons
           name="account-circle"
@@ -395,6 +409,14 @@ const UserProfileScreen = ({ route, navigation }) => {
         </View>
       </View>
       <View style={styles.buttonsAndIconsContainer}>
+        {/* <TouchableOpacity style={styles.icon}>
+          <MaterialCommunityIcons
+            name="arrow-left"
+            size={30}
+            color="grey"
+            onPress={() => navigation.goBack()}
+          />
+        </TouchableOpacity> */}
         <TouchableOpacity style={styles.button} onPress={handleFollowUnfollow}>
           <Text style={styles.buttonText}>
             {isFollowing ? "Unfollow" : "Follow"}
@@ -490,6 +512,7 @@ const UserProfileScreen = ({ route, navigation }) => {
         <FooterTab focused={""}></FooterTab>
       )}
     </SafeAreaView>
+    </>
   );
 };
 
@@ -557,7 +580,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#6A5ACD",
     padding: 10,
     borderRadius: 5,
-    width: "50%",
+    width: "45%",
     marginTop: 5,
   },
   buttonText: {
@@ -584,7 +607,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     marginTop: 5,
-    marginBottom: "77%", // contols how close to the footerNavigator that the content (FlatLists) is
+    marginBottom: "93%", // contols how close to the footerNavigator that the content (FlatLists) is
   },
   workoutName: {
     fontWeight: "bold",
@@ -686,6 +709,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "black",
   },
+  backButton: {
+    marginLeft: 5,
+    marginBottom: 5,
+  }
 });
 
 export default UserProfileScreen;
