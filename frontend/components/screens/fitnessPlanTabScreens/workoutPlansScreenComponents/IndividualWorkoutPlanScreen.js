@@ -363,13 +363,25 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
     setAddingComment(false);
   }
 
+  const onNavigateToUserProfile = (userId) => {
+    if (parseInt(userId) === parseInt(currentUserId)) {
+      navigation.navigate("PersonalProfile");
+    } else {
+      navigation.navigate("UserProfile", { userId });
+    }
+  }
+  
   const renderComment = ({item}) => {
     return (
       <View style={styles.commentItemContainer} key={item.id}>
-        <Text style={styles.commentText}>
-          <Text style={styles.commentUsername}>{item.user.username}<Text style={{fontWeight: 'normal'}}>: </Text></Text>
-          <Text style={styles.commentContent}>{item.content}</Text>
-        </Text>
+        <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
+          <TouchableOpacity onPress={() => onNavigateToUserProfile(item.userId)}>
+              <Text style={[styles.commentUsername, { marginRight: 5 }]}> {item.user.username}: </Text>
+          </TouchableOpacity>
+          <Text style={styles.commentText}>
+              <Text style={styles.commentContent}>{item.content}</Text>
+          </Text>
+        </View>
 
         {item.userId === parseInt(currentUserId) && (
           <TouchableOpacity onPress={() => deleteComment(item.id)} style={styles.trashIcon}>

@@ -187,7 +187,7 @@ const UserProfileScreen = ({ route, navigation }) => {
   };
 
   const onNavigateToUserProfile = (userId) => {
-    if (userId === currentUserId) {
+    if (parseInt(userId) === parseInt(currentUserId)) {
       navigation.navigate("PersonalProfile");
     } else {
       console.log("bm - navigating to user profile with userId: ", userId)
