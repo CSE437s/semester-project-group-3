@@ -249,6 +249,8 @@ const PostBlock = ({
 }
 const styles = StyleSheet.create({
     post: {
+        width: "91%",
+        flex: 1,
         backgroundColor: "#FFF",
         paddingTop: 10,
         paddingBottom: 15,
@@ -263,6 +265,7 @@ const styles = StyleSheet.create({
         shadowRadius: 1.5,
         elevation: 3,
         flexDirection: "column",
+        justifyContent: "space-between",
     },
     postHeader: {
         flexDirection: "row",

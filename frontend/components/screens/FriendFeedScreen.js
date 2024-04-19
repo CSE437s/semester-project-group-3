@@ -215,20 +215,26 @@ const FriendFeedScreen = ({ navigation }) => {
 
   if (!loading && workouts.length === 0 && posts.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
-        <MaterialCommunityIcons
-          name="weight-lifter"
-          size={48}
-          color={"black"}
-        />
-        <Text style={styles.welcomeText}>Welcome to your Feed!</Text>
-        <Text style={styles.subWelcomeText}>
-          {" "}
-          Workout plans or Posts created by accounts that you follow will be displayed
-          here
-        </Text>
+      <>
+        <SafeAreaView style={[styles.container]}>
+          <View style={styles.alignCenter}>
+            <MaterialCommunityIcons
+              name="weight-lifter"
+              size={48}
+              color={"black"}
+            />
+          </View>
+          <Text style={styles.welcomeText}>Welcome to your Feed!</Text>
+          <Text style={styles.subWelcomeText}>
+            {" "}
+            Workout plans or Posts created by accounts that you follow will be displayed
+            here
+          </Text>
+        
+        </SafeAreaView>
         <FooterTab focused="FriendFeed"></FooterTab>
-      </SafeAreaView>
+      </>
+      
     );
   }
 
@@ -236,9 +242,12 @@ const FriendFeedScreen = ({ navigation }) => {
     <>
       
       <View style={styles.container}>
-        <Text style={styles.topText}>
-          Workout Plans & Posts From Friends
-        </Text>
+        <View style={styles.alignCenter}>
+          <Text style={styles.topText}>
+            Workout Plans & Posts From Friends
+          </Text>
+        </View>
+        
         <KeyboardAwareScrollView>
           <FlatList
             data={sortData([...workouts, ...posts])}
@@ -260,9 +269,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
     paddingTop: "17%",
-    marginBottom: "18%"
+    marginBottom: "18%",
+    width: '100%',
   },
   welcomeText: {
     fontSize: 22,
@@ -282,7 +291,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
     fontSize: 18,
-  }
+  },
+  alignCenter: {
+    alignItems: "center",
+  },
 });
 
 export default FriendFeedScreen;
