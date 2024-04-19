@@ -244,6 +244,7 @@ const UserProfileScreen = ({ route, navigation }) => {
 
     return (
       <WorkoutBlock 
+        key={`workout-${item.id}-${item.comments.length}`}
         item={item}
         currentUserId={currentUserId}
         handleWorkoutPress={handleWorkoutPress}

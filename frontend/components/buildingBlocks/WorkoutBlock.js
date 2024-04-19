@@ -6,6 +6,7 @@ import axios from "axios";
 import { BACKEND_URL } from "@env";
 import { formatDistanceToNow, set } from "date-fns";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 
 const COMMENT_PAGE_LENGTH = 4;
 
@@ -32,6 +33,11 @@ const WorkoutBlock = ({
     const [comments, setComments] = useState(item.comments ?? []);
     const [visibleComments, setVisibleComments] = useState(item.comments?.slice(0, COMMENT_PAGE_LENGTH) ?? []);
     const [currentPage, setCurrentPage] = useState(0);
+
+    // if (item.name == "Leg day") {
+    //     console.log("bm - item: ", item);
+    //     console.log(item.comments.length)
+    // }
 
     const postComment = async () => {
         if (newComment === "") {
@@ -183,7 +189,7 @@ const WorkoutBlock = ({
                         )}
                         <Text style={styles.workoutLikesCount}>{likeCount}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.postCommentIconContainer} onPress={() => setCommentsOpen(!commentsOpen)} disabled={openCommentBlock !== -1 && openCommentBlock !== parseInt(item.id)}>
+                    <TouchableOpacity style={styles.postCommentIconContainer} onPress={handleWorkoutPress}>
                         <MaterialCommunityIcons name="comment-outline" size={24} color={!commentsOpen ? ('grey') : ('#a99ee1')} />
                         <Text style={styles.workoutLikesCount}>{commentCount}</Text>
                     </TouchableOpacity>
@@ -194,46 +200,6 @@ const WorkoutBlock = ({
                     })}
                 </Text>
             </View>
-
-            {commentsOpen && (
-                <View style={styles.commentsContainer}>
-                    <View style={styles.newCommentContainer}>
-                        <TextInput
-                            style={styles.commentInput}
-                            onChangeText={setNewComment}
-                            value={newComment}
-                            placeholder="Write a comment..."
-                            onSubmitEditing={postComment}
-                        />
-                        <TouchableOpacity onPress={postComment}>
-                            <MaterialCommunityIcons name="send" size={24} color="#695acd" />
-                        </TouchableOpacity>
-                    </View>
-                    <FlatList
-                        data={visibleComments} 
-                        keyExtractor={(comment) => comment.id.toString()}
-                        renderItem={renderComment}
-                        style={styles.commentsList}
-                    />
-                    <View style={styles.paginationControls}>
-                        {(currentPage !== 0) ? (
-                            <TouchableOpacity onPress={handlePrevious} disabled={currentPage === 0}>
-                                <MaterialCommunityIcons name="chevron-left" size={32} color="black" />
-                            </TouchableOpacity>
-                        ) : (
-                            <TouchableOpacity disabled={true}></TouchableOpacity>
-                        )}
-                        {((currentPage + 1) * COMMENT_PAGE_LENGTH < item.comments.length) ? (
-                            <TouchableOpacity onPress={handleNext} disabled={(currentPage + 1) * COMMENT_PAGE_LENGTH >= item.comments.length}>
-                                <MaterialCommunityIcons name="chevron-right" size={32} color="black" />
-                            </TouchableOpacity>
-                        ) : (
-                            <TouchableOpacity disabled={true}></TouchableOpacity>
-                        )}
-                        
-                    </View>
-                </View>
-            )}
             
         </TouchableOpacity>
     );

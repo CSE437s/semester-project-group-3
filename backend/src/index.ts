@@ -735,6 +735,18 @@ app.get(`/workout/one/:workoutId`, async (req, res) => {
       include: {
         routines: true,
         user: true,
+        comments: {
+          include: {
+            user: {
+              select: {
+                username: true,
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'desc',
+          }
+        },
       },
     });
     res.status(200).json(result);

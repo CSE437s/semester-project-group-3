@@ -206,6 +206,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
 
     return (
       <WorkoutBlock 
+        key={`workout-${item.id}-${item.comments.length}`}
         item={item}
         currentUserId={userData.id}
         handleWorkoutPress={handleWorkoutPress}
@@ -540,12 +541,12 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
         )}
 
         
+      
       </SafeAreaView>
 
       {/* Footer Tab shouldn't get in the way when making a new post */}
-      {!keyboardVisible && (
-        <FooterTab focused={"PersonalProfile"}></FooterTab>
-      )}
+      <FooterTab focused={"PersonalProfile"}></FooterTab>
+
     </>
   );
 };

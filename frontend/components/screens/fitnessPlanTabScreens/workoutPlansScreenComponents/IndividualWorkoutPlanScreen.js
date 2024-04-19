@@ -42,7 +42,9 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
   const [addingWorkout, setAddingWorkout] = useState(false);
   const [exercises, setExercises] = useState(false);
   const [selected, setSelected] = useState("");
+  const [comments, setComments] = useState([]);
   const [recommendedExercises, setRecommendedExercises] = useState([]);
+  const [currentUserId, setCurrentUserId] = useState(null);
   // const [updatingRoutineState, setUpdateRoutineState] = useState({});
 
   // we will use this to check if the workout belongs to the current user
@@ -52,6 +54,9 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
 
   const [showRoutineInfo, setShowRoutineInfo] = useState(false);
   const [routineInfoId, setRoutineInfoId] = useState(-1);
+
+  const [addingComment, setAddingComment] = useState(false);
+  const [newComment, setNewComment] = useState("");
 
   // console.log("bm - individual workout plan screen route params: ", route.params);
 
@@ -64,6 +69,20 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
   DeviceEventEmitter.addListener("editWorkoutEvent", (eventData) => {
     setEdited(true);
   });
+
+  // set the current user id on initial load
+  useEffect(() => {
+    const getCurrentUserId = async () => {
+      try {
+        const id = await AsyncStorage.getItem("user_id");
+        setCurrentUserId(id);
+      } catch (e) {
+        console.log("error getting current user id: ", e);
+      }
+    };
+
+    getCurrentUserId();
+  })
 
   // check if the workout belongs to the current user (compare to AsyncStorage user_id)
   useEffect(() => {
@@ -105,6 +124,8 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
       setRoutines(result.data.routines);
       setWorkoutOwnerId(result.data.user_id);
       setWorkoutOwnerUsername(result.data.user.username);
+      setComments(result.data.comments);
+      console.log('bm - set comments to ', result.data.comments);
       setLoading(false);
     } catch (error) {
       if (error.response) {
@@ -313,6 +334,51 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
     setLoading(true);
     fetchWorkout();
   }, [edited]);
+  
+  const deleteComment = async (commentId) => {
+    try {
+      const response = await axios.delete(`${BACKEND_URL}/workouts/comment/${commentId}`);
+      fetchWorkout();
+    } catch (error) {
+      console.log("error occurred while attempting to delete comment: ", error);
+    }
+  }
+
+  const postComment = async () => {
+    if (newComment === "") {
+      return;
+    }
+    try {
+      console.log("bm - in postcomment with newComment: ", newComment)
+      const response = await axios.post(`${BACKEND_URL}/workouts/${workout_id}/comment`, {
+        userId: parseInt(currentUserId),
+        text: newComment,
+      });
+      console.log("bm - response from posting comment: ", response.data)
+      setNewComment("");
+      fetchWorkout();
+    } catch (error) {
+        console.log("error occurred while attempting to post comment: ", error);
+    }
+    setAddingComment(false);
+  }
+
+  const renderComment = ({item}) => {
+    return (
+      <View style={styles.commentItemContainer} key={item.id}>
+        <Text style={styles.commentText}>
+          <Text style={styles.commentUsername}>{item.user.username}<Text style={{fontWeight: 'normal'}}>: </Text></Text>
+          <Text style={styles.commentContent}>{item.content}</Text>
+        </Text>
+
+        {item.userId === parseInt(currentUserId) && (
+          <TouchableOpacity onPress={() => deleteComment(item.id)} style={styles.trashIcon}>
+            <MaterialCommunityIcons name="trash-can-outline" size={20} color="grey" />
+          </TouchableOpacity>
+        )}
+      </View>
+    )
+  }
 
   return (
     <>
@@ -409,7 +475,6 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
                       size={32}
                       color="#6A5ACD"
                     />
-                    {/* <Text style={styles.addNewText}>Add a New Exercise</Text> */}
                   </TouchableOpacity>
                 )}
               </View>
@@ -520,6 +585,56 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
                   </View>
                 )
               )}
+
+              <View style={styles.commentsHeader}>
+                <Text style={styles.exercisesText}>Comments</Text>
+                {!addingComment ? (
+                  <TouchableOpacity
+                  style={styles.addIcon}
+                  onPress={() => {
+                    setAddingComment(true);
+                  }}
+                  >
+                    <MaterialIcons
+                      name="add-circle"
+                      size={32}
+                      color="#6A5ACD"
+                    />
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                  style={styles.addIcon}
+                  onPress={() => {
+                    setAddingComment(false);
+                  }}
+                  >
+                    <MaterialIcons
+                      name="remove-circle"
+                      size={32}
+                      color="#6A5ACD"
+                    />
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              <View styles={styles.commentContainer}>
+                {addingComment && (
+                    <View style={styles.newCommentContainer}>
+                      <TextInput
+                          style={styles.commentInput}
+                          onChangeText={setNewComment}
+                          value={newComment}
+                          placeholder="Write a comment..."
+                          onSubmitEditing={postComment}
+                      />
+                      <TouchableOpacity onPress={postComment} style={styles.sendIcon}>
+                          <MaterialCommunityIcons name="send" size={24} color="#695acd" />
+                      </TouchableOpacity>
+                    </View>
+                )}
+                {comments.map((comment) => renderComment({item: comment}))}
+              </View>
+              
             </View>
           )}
           {/* </KeyboardAvoidingView> */}
@@ -574,6 +689,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  commentsHeader: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
   },
   addIcon: {
     marginTop: 15,
@@ -726,5 +848,40 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 12,
   },
+  commentItemContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    borderTopWidth: 1,
+    borderColor: '#ccc',
+  },
+  commentUsername: {
+      fontWeight: "bold",           
+  },
+  commentContent: {
+      flex: 1, // to take up rest of space                    
+      fontSize: 14,                
+      color: "#333",
+  },
+  trashIcon: {
+    marginRight: 5,
+  },
+  newCommentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    backgroundColor: '#ebe7f7',
+    borderRadius: 25,
+    marginBottom: 15,
+  },
+  commentInput: {
+    flex: 1,
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  sendIcon: {
+    marginRight: 4,
+  }
 });
 export default IndividualWorkoutPlanScreen;
