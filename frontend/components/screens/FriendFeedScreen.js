@@ -137,7 +137,7 @@ const FriendFeedScreen = ({ navigation }) => {
   useEffect(() => {
     const intervalId = setInterval(async () => {
       if (currentUserId) {
-        console.log("fetching friend posts & workouts...")
+        // console.log("fetching friend posts & workouts...")
         fetchFriendPosts();
         fetchFriendWorkouts();
       }
