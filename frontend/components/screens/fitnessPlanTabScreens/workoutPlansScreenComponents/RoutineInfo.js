@@ -156,18 +156,18 @@ const RoutineInfo = ({
             {!editingSetTopLevel && (
               <>
                 <TouchableOpacity
-                  style={styles.addNewButton}
+                  style={styles.transparentButton}
                   onPress={handleAddSet}
                 >
-                  <Text style={styles.addNewText}>Create New Set</Text>
+                  <Text style={styles.transparentButtonText}>Create New Set</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.transparentButton}
+                  style={styles.addNewButton}
                   onPress={() => {
                     setEditing(false);
                   }}
                 >
-                  <Text style={styles.transparentButtonText}>Save Changes</Text>
+                  <Text style={styles.addNewText}>Save Changes</Text>
                 </TouchableOpacity>
               </>
             )}
