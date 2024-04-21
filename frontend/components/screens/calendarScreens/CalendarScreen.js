@@ -18,8 +18,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 const CalendarScreen = ({ navigation }) => {
-  const [selected, setSelected] = useState(new Date());
-  const [today, setToday] = useState("");
+  const [selected, setSelected] = useState(new Date()); //Date object
+  const [today, setToday] = useState(""); //YYYY-MM-DD
   const [scheduledWorkouts, setScheduledWorkouts] = useState([]);
   const [marks, setMarks] = useState({});
   const [selectedDateWorkouts, setSelectedDateWorkouts] = useState([]);
@@ -56,9 +56,10 @@ const CalendarScreen = ({ navigation }) => {
   };
 
   const onScheduleWorkoutPress = () => {
-    selected.setHours(selected.getHours() + 12);
+    const onDate = selected;
+    onDate.setUTCHours(12);
     navigation.navigate("ScheduleWorkout", {
-      onDate: selected.toISOString(),
+      onDate: onDate.toISOString(),
     });
   };
 
@@ -78,13 +79,13 @@ const CalendarScreen = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
-      console.log(Platform.OS);
-
       const initializeData = async () => {
         await fetchScheduledWorkouts();
+
         const currentDate = new Date();
         const offset = currentDate.getTimezoneOffset();
         const todayDate = new Date(currentDate.getTime() - offset * 60000);
+
         const todayStr = todayDate.toISOString().split("T")[0];
         setToday(todayStr);
         setSelectedDateWorkouts(
@@ -144,7 +145,7 @@ const CalendarScreen = ({ navigation }) => {
             style={styles.calendar}
             theme={styles.calendarTheme}
             onDayPress={(day) => {
-              setSelected(new Date(day.dateString));
+              setSelected(new Date(day.timestamp));
             }}
             markingType={"multi-dot"}
             markedDates={marks}

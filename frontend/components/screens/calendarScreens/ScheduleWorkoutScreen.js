@@ -37,7 +37,6 @@ const ScheduleWorkoutScreen = ({ route, navigation }) => {
   };
 
   const scheduleWorkout = async () => {
-    console.log(date);
     try {
       const response = await axios.post(BACKEND_URL + `/workout/schedule`, {
         day: date.getDate(),
