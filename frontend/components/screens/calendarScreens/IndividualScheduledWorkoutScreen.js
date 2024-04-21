@@ -68,6 +68,21 @@ const IndividualScheduledWorkoutScreen = ({ route, navigation }) => {
     }
   };
 
+  const handleFinishWorkout = async () => {
+    try {
+      const response = await axios.post(
+        BACKEND_URL + `/workout/scheduled/complete`,
+        {
+          id: scheduled_workout_id,
+        }
+      );
+      navigation.goBack();
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error finishing workout", "Please try again later");
+    }
+  };
+
   useEffect(() => {
     fetchScheduledWorkout();
   }, []);
@@ -75,7 +90,7 @@ const IndividualScheduledWorkoutScreen = ({ route, navigation }) => {
   return (
     <>
       <TouchableWithoutFeedback onPress={dismissKeyboard}>
-        <ScrollView style={styles.content}>
+        <View style={styles.content}>
           <TouchableOpacity
             style={[
               styles.chevron,
@@ -117,7 +132,7 @@ const IndividualScheduledWorkoutScreen = ({ route, navigation }) => {
                 )}
               </View>
 
-              <View>
+              <ScrollView>
                 {routines.map((routine) => {
                   return (
                     <ScheduledRoutine
@@ -127,10 +142,16 @@ const IndividualScheduledWorkoutScreen = ({ route, navigation }) => {
                     ></ScheduledRoutine>
                   );
                 })}
-              </View>
+                <TouchableOpacity
+                  style={styles.finishButton}
+                  onPress={handleFinishWorkout}
+                >
+                  <Text style={{ color: "white" }}>Finish</Text>
+                </TouchableOpacity>
+              </ScrollView>
             </View>
           )}
-        </ScrollView>
+        </View>
       </TouchableWithoutFeedback>
     </>
   );
@@ -321,6 +342,16 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  finishButton: {
+    backgroundColor: "#695acd",
+    padding: 16,
+    marginBottom: 8,
+    borderRadius: 5,
+    minHeight: 50,
+    marginTop: 30,
+    padding: 15,
+    alignItems: "center",
   },
 });
 export default IndividualScheduledWorkoutScreen;

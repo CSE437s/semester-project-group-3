@@ -10,7 +10,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const cors = require("cors");
 const nodemailer = require("nodemailer");
 
-const multer = require('multer');
+const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
 
 const prisma = new PrismaClient();
@@ -289,13 +289,13 @@ app.get("/user/:userId", async (req, res) => {
                   user: {
                     select: {
                       username: true,
-                    }
-                  }
+                    },
+                  },
                 },
                 orderBy: {
-                  createdAt: 'desc',
-                }
-              }
+                  createdAt: "desc",
+                },
+              },
             },
             orderBy: {
               time_created: "desc", // Sort workouts in reverse order by 'created'
@@ -740,12 +740,12 @@ app.get(`/workout/one/:workoutId`, async (req, res) => {
             user: {
               select: {
                 username: true,
-              }
-            }
+              },
+            },
           },
           orderBy: {
-            createdAt: 'desc',
-          }
+            createdAt: "desc",
+          },
         },
       },
     });
@@ -819,13 +819,13 @@ app.post("/workout/:workoutId/like", async (req, res) => {
     });
     res.json(like);
   } catch (error) {
-    console.error('Failed to like workout:', error);
+    console.error("Failed to like workout:", error);
     res.sendStatus(400);
   }
 });
 
 // unlike a workout
-app.delete('/workout/:workoutId/like/:userId', async (req, res) => {
+app.delete("/workout/:workoutId/like/:userId", async (req, res) => {
   const workoutId = parseInt(req.params.workoutId);
   const userId = parseInt(req.params.userId);
 
@@ -836,10 +836,10 @@ app.delete('/workout/:workoutId/like/:userId', async (req, res) => {
         workoutId,
       },
     });
-    res.sendStatus(200)
+    res.sendStatus(200);
   } catch (error) {
-    console.error('Failed to unlike workout:', error);
-    res.sendStatus(400)
+    console.error("Failed to unlike workout:", error);
+    res.sendStatus(400);
   }
 });
 
@@ -1039,13 +1039,13 @@ app.get(`/feed/workouts/:userId`, async (req, res) => {
             user: {
               select: {
                 username: true,
-              }
-            }
+              },
+            },
           },
           orderBy: {
-            createdAt: 'desc',
-          }
-        }
+            createdAt: "desc",
+          },
+        },
       },
       orderBy: {
         time_created: "desc",
@@ -1091,13 +1091,13 @@ app.get(`/feed/posts/:userId`, async (req, res) => {
             user: {
               select: {
                 username: true,
-              }
-            }
+              },
+            },
           },
           orderBy: {
-            createdAt: 'desc',
-          }
-        }
+            createdAt: "desc",
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -1313,6 +1313,23 @@ app.post(`/workout/scheduled/set/uncomplete`, async (req, res) => {
   }
 });
 
+//Complete a workout
+app.post(`/workout/scheduled/complete`, async (req, res) => {
+  const { id } = req.body;
+
+  try {
+    const result = await prisma.scheduledWorkout.update({
+      where: { id: id },
+      data: { completion: "complete" },
+    });
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
+});
+
 //Universal search based on textual similarity to query
 app.get(`/search/:query`, async (req, res) => {
   const { query } = req.params;
@@ -1425,7 +1442,6 @@ app.get(`/search/smartsearch/:query`, async (req, res) => {
   }
 });
 
-
 // like a post
 app.post("/posts/:postId/like", async (req, res) => {
   const postId = parseInt(req.params.postId);
@@ -1470,31 +1486,33 @@ app.post("/posts/:postId/comment", async (req, res) => {
   const { userId, text } = req.body;
 
   // console.log('bm - in commenting endpoint', postId, userId, text)
-  
+
   if (!text || !userId) {
-    res.status(400).json({ message: "Please provide a user ID and comment text." });
+    res
+      .status(400)
+      .json({ message: "Please provide a user ID and comment text." });
     return;
   }
 
   try {
     const comment = await prisma.postComment.create({
-        data: {
-          content: text,
-          postId: postId,
-          userId: parseInt(userId),
+      data: {
+        content: text,
+        postId: postId,
+        userId: parseInt(userId),
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+          },
         },
-        include: {
-          user: {
-            select: {
-              username: true,
-            }
-          }
-        }
+      },
     });
     res.json(comment);
   } catch (error) {
-      console.error("Failed to add comment to post:", error);
-      res.status(400).send("Error adding comment to post");
+    console.error("Failed to add comment to post:", error);
+    res.status(400).send("Error adding comment to post");
   }
 });
 
@@ -1502,7 +1520,7 @@ app.post("/workouts/:workoutId/comment", async (req, res) => {
   const workoutId = parseInt(req.params.workoutId);
   const { userId, text } = req.body;
 
-  console.log("bm - in workout commenting endpoint", workoutId, userId, text)
+  console.log("bm - in workout commenting endpoint", workoutId, userId, text);
 
   if (!text || !userId) {
     res.status(400).send("Missing comment content or user ID");
@@ -1510,27 +1528,26 @@ app.post("/workouts/:workoutId/comment", async (req, res) => {
   }
 
   try {
-      const newComment = await prisma.workoutComment.create({
-        data: {
-          content: text,
-          workoutId: workoutId,
-          userId: parseInt(userId),
+    const newComment = await prisma.workoutComment.create({
+      data: {
+        content: text,
+        workoutId: workoutId,
+        userId: parseInt(userId),
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+          },
         },
-        include: {
-          user: {
-            select: {
-              username: true,
-            }
-          }
-        }
-      });
-      res.json(newComment);
+      },
+    });
+    res.json(newComment);
   } catch (error) {
     console.error("Error posting comment to workout:", error);
     res.status(500).send("Failed to post comment");
   }
 });
-
 
 // delete a post
 app.delete("/posts/:postId", async (req, res) => {
@@ -1584,31 +1601,32 @@ app.delete("/workouts/comment/:commentId", async (req, res) => {
 });
 
 // make a post
-app.post("/posts", upload.single('image'), async (req, res) => {
+app.post("/posts", upload.single("image"), async (req, res) => {
   const { userId, caption } = req.body;
   let file = null;
   if ((req as any).file) {
     file = (req as any).file; // image file
   }
-  
 
   try {
     let imageBuffer = null;
-    
+
     if (file) {
       imageBuffer = file.buffer;
     }
 
     // Ensure at least one of image or caption is provided
     if (!imageBuffer && !caption) {
-      return res.status(400).json({ message: "Please provide either an image or a caption." });
+      return res
+        .status(400)
+        .json({ message: "Please provide either an image or a caption." });
     }
 
     const post = await prisma.post.create({
       data: {
         userId: parseInt(userId),
         caption,
-        image: imageBuffer, 
+        image: imageBuffer,
       },
     });
     res.json(post);
@@ -1619,7 +1637,7 @@ app.post("/posts", upload.single('image'), async (req, res) => {
 });
 
 // get all posts from a user
-app.get('/user/:userId/posts', async (req, res) => {
+app.get("/user/:userId/posts", async (req, res) => {
   const { userId } = req.params;
 
   try {
@@ -1635,23 +1653,23 @@ app.get('/user/:userId/posts', async (req, res) => {
             user: {
               select: {
                 username: true,
-              }
-            }
+              },
+            },
           },
           orderBy: {
-            createdAt: 'desc',
-          }
-        }
+            createdAt: "desc",
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc',
-      }
+        createdAt: "desc",
+      },
     });
 
     // Convert binary image data to Base64 (will need to use this if we get images working)
-    const postsWithBase64Images = userPosts.map(post => ({
+    const postsWithBase64Images = userPosts.map((post) => ({
       ...post,
-      image: post.image ? Buffer.from(post.image).toString('base64') : null,
+      image: post.image ? Buffer.from(post.image).toString("base64") : null,
     }));
 
     res.json(userPosts);
@@ -1661,12 +1679,9 @@ app.get('/user/:userId/posts', async (req, res) => {
   }
 });
 
-
-
 // =================================================================================================
 // HELPER FUNCTIONS
 // =================================================================================================
-
 
 //Hash and salt password
 async function hashPassword(password: string): Promise<string> {

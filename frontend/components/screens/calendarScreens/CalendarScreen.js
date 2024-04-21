@@ -172,30 +172,46 @@ const CalendarScreen = ({ navigation }) => {
           <ScrollView style={styles.agendaItems}>
             {selected.toISOString().split("T")[0] === today
               ? selectedDateWorkouts.map((item) => {
-                  return (
-                    <View key={item.id} style={styles.scheduledWorkoutCluster}>
+                  if (item.completion == "complete") {
+                    return (
                       <TouchableOpacity
-                        style={styles.todayScheduledWorkoutContainer}
-                        onPress={() =>
-                          navigation.navigate("IndividualWorkoutScreen", {
-                            workout_id: item.workout_id,
-                          })
-                        }
+                        key={item.id}
+                        style={styles.scheduledWorkoutContainer}
                       >
-                        <Text style={styles.workoutName}>{item.name}</Text>
+                        <Text style={styles.finishedWorkoutName}>
+                          {item.name}
+                        </Text>
                       </TouchableOpacity>
-                      <TouchableOpacity
-                        style={styles.startWorkoutButton}
-                        onPress={() =>
-                          navigation.navigate("IndividualScheduledWorkout", {
-                            scheduled_workout_id: item.id,
-                          })
-                        }
+                    );
+                  } else {
+                    return (
+                      <View
+                        key={item.id}
+                        style={styles.scheduledWorkoutCluster}
                       >
-                        <Text style={styles.startText}>Start</Text>
-                      </TouchableOpacity>
-                    </View>
-                  );
+                        <TouchableOpacity
+                          style={styles.todayScheduledWorkoutContainer}
+                          onPress={() =>
+                            navigation.navigate("IndividualWorkoutScreen", {
+                              workout_id: item.workout_id,
+                            })
+                          }
+                        >
+                          <Text style={styles.workoutName}>{item.name}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.startWorkoutButton}
+                          onPress={() =>
+                            navigation.navigate("IndividualScheduledWorkout", {
+                              scheduled_workout_id: item.id,
+                            })
+                          }
+                        >
+                          <Text style={styles.startText}>Start</Text>
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  }
                 })
               : selectedDateWorkouts.map((item) => {
                   return (
@@ -291,6 +307,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     color: "black",
+  },
+  finishedWorkoutName: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "red",
+    textDecorationLine: "line-through",
   },
   scheduledWorkoutCluster: {
     display: "flex",
