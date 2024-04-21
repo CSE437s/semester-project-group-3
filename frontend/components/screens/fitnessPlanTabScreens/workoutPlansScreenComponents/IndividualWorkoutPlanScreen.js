@@ -145,17 +145,10 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
         BACKEND_URL + `/workout/delete/${workout_id}`
       );
       if (result.status == 200) {
-        navigation.navigate(workoutFrom, { prevPage: prevPage });
+        navigation.goBack();
       }
-      // if (result.status == 200) {
-      //   Alert.alert("Workout deleted successfully", "", [
-      //     {
-      //       text: "Ok",
-      //       onPress: navigation.navigate(workoutFrom, { prevPage: prevPage }),
-      //     },
-      //   ]);
-      // }
     } catch (error) {
+      console.error(error);
       if (error.response) {
         Alert.alert("Could not find this workout");
       } else {

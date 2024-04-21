@@ -103,9 +103,9 @@ const EditWorkoutPlanScreen = ({ navigation }) => {
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <SafeAreaView style={styles.container}>
         {/* <TouchableOpacity onPress={() => navigation.goBack()}> */}
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        {/* <TouchableOpacity onPress={() => navigation.goBack()}>
           <BackArrowIcon></BackArrowIcon>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         {loading ? (
           <Text>Loading content...</Text>
         ) : (
@@ -176,18 +176,7 @@ const EditWorkoutPlanScreen = ({ navigation }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.button, styles.cancelButton]}
-                onPress={() =>
-                  navigation.dispatch(
-                    CommonActions.navigate({
-                      name: workoutFrom,
-                      params: {
-                        workoutFrom: workoutFromFrom,
-                        prevPage: prevPage,
-                        workout_id: workout_id,
-                      },
-                    })
-                  )
-                }
+                onPress={() => navigation.goBack()}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
