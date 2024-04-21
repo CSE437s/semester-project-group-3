@@ -125,7 +125,7 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
       setWorkoutOwnerId(result.data.user_id);
       setWorkoutOwnerUsername(result.data.user.username);
       setComments(result.data.comments);
-      console.log('bm - set comments to ', result.data.comments);
+      // console.log('bm - set comments to ', result.data.comments);
       setLoading(false);
     } catch (error) {
       if (error.response) {

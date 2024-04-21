@@ -34,11 +34,11 @@ const UserProfileScreen = ({ route, navigation }) => {
   const [userId, setUserId] = useState(route.params?.userId); // id of user we want to display profile for (empty string means current user's profile)
   const [currentUserId, setCurrentUserId] = useState(""); // id of currently logged in user
   const [userData, setUserData] = useState(null);
-  const [activeTab, setActiveTab] = useState("workouts"); // 'workouts' or 'favoriteExercises' or 'posts'
+  const [activeTab, setActiveTab] = useState("workouts"); // 'workouts' or 'posts'
   const [refreshing, setRefreshing] = useState(false);
 
   const [workouts, setWorkouts] = useState([]);
-  const [favoriteExercises, setFavoriteExercises] = useState([]);
+  // const [favoriteExercises, setFavoriteExercises] = useState([]);
   const [posts, setPosts] = useState([]);
 
   const [followers, setFollowers] = useState(0);
@@ -134,7 +134,7 @@ const UserProfileScreen = ({ route, navigation }) => {
     if (userId) {
       // fetch user data
       fetchUserData();
-      getFavoriteExercises();
+      // getFavoriteExercises();
       getPosts();
     }
   }, [userId]);
@@ -165,26 +165,26 @@ const UserProfileScreen = ({ route, navigation }) => {
     });
     setWorkouts(parsedWorkouts);
 
-    getFavoriteExercises();
+    // getFavoriteExercises();
   }, [userData]);
 
-  const getFavoriteExercises = async () => {
-    try {
-      const response = await axios.get(
-        BACKEND_URL + `/exercises/saved/${userId}`
-      );
-      const parsedExercises = response.data.map((exercise) => {
-        return {
-          id: exercise.id,
-          name: exercise.name,
-          timeCreated: exercise.saved,
-        };
-      });
-      setFavoriteExercises(parsedExercises);
-    } catch (e) {
-      console.log("bm - error fetching favorite exercises: ", e);
-    }
-  };
+  // const getFavoriteExercises = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       BACKEND_URL + `/exercises/saved/${userId}`
+  //     );
+  //     const parsedExercises = response.data.map((exercise) => {
+  //       return {
+  //         id: exercise.id,
+  //         name: exercise.name,
+  //         timeCreated: exercise.saved,
+  //       };
+  //     });
+  //     setFavoriteExercises(parsedExercises);
+  //   } catch (e) {
+  //     console.log("bm - error fetching favorite exercises: ", e);
+  //   }
+  // };
 
   const onNavigateToUserProfile = (userId) => {
     if (parseInt(userId) === parseInt(currentUserId)) {
@@ -213,7 +213,7 @@ const UserProfileScreen = ({ route, navigation }) => {
       await handleFollow();
     }
     fetchUserData();
-    getFavoriteExercises();
+    // getFavoriteExercises();
   };
 
   const handleFollow = async () => {
@@ -307,6 +307,7 @@ const UserProfileScreen = ({ route, navigation }) => {
     const intervalId = setInterval(() => {
       // console.log("fetching posts...")
       if (activeTab === "posts") {
+        console.log('fetching user posts...')
         getPosts();
       } else if (activeTab === "workouts") {
         console.log("fetching user data...")
@@ -362,7 +363,7 @@ const UserProfileScreen = ({ route, navigation }) => {
     setUserId(route.params?.userId)
     setRefreshing(true);
     await fetchUserData();
-    await getFavoriteExercises();
+    // await getFavoriteExercises();
     setRefreshing(false);
   };
 
@@ -459,7 +460,7 @@ const UserProfileScreen = ({ route, navigation }) => {
               color={activeTab === "posts" ? "#6A5ACD" : "#aaa"}
             />
           </TouchableOpacity>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.icon}
             onPress={() => {
               setActiveTab("favoriteExercises")
@@ -470,7 +471,7 @@ const UserProfileScreen = ({ route, navigation }) => {
               size={30}
               color={activeTab === "favoriteExercises" ? "#6A5ACD" : "#aaa"}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
       </View>
 
       <View style={styles.divider} />
@@ -478,7 +479,7 @@ const UserProfileScreen = ({ route, navigation }) => {
       <View style={styles.contentContainerHeader}>
         <Text style={styles.contentContainerText}>
           {activeTab === "workouts" && "Workout Plans"}
-          {activeTab === "favoriteExercises" && "Favorite Exercises"}
+          {/* {activeTab === "favoriteExercises" && "Favorite Exercises"} */}
           {activeTab === "posts" && "Posts"}
         </Text>
       </View>
@@ -494,7 +495,7 @@ const UserProfileScreen = ({ route, navigation }) => {
             }
           />
         )}
-        {activeTab === "favoriteExercises" && favoriteExercises.length > 0 && (
+        {/* {activeTab === "favoriteExercises" && favoriteExercises.length > 0 && (
           <FlatList
             data={favoriteExercises}
             keyExtractor={(item) => item.id.toString()}
@@ -503,7 +504,7 @@ const UserProfileScreen = ({ route, navigation }) => {
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
           />
-        )}
+        )} */}
         {activeTab === "posts" && posts.length > 0 &&(
           <KeyboardAwareScrollView>
             <FlatList
@@ -590,7 +591,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#6A5ACD",
     padding: 10,
     borderRadius: 5,
-    width: "45%",
+    width: "60%",
     marginTop: 5,
   },
   buttonText: {

@@ -44,7 +44,7 @@ import { Entypo } from "@expo/vector-icons";
 const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
   const [userData, setUserData] = useState(null); // note: workouts are included in userData
 
-  const [activeTab, setActiveTab] = useState("workouts"); // 'workouts' or 'favoriteExercises' or 'posts'
+  const [activeTab, setActiveTab] = useState("workouts"); // 'workouts' or 'posts'
 
   const [isLoading, setIsLoading] = useState(true);
   const [followers, setFollowers] = useState(0);
@@ -52,7 +52,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
   const [refreshing, setRefreshing] = useState(false);
 
   const [workouts, setWorkouts] = useState([]);
-  const [favoriteExercises, setFavoriteExercises] = useState([]);
+  // const [favoriteExercises, setFavoriteExercises] = useState([]);
   const [posts, setPosts] = useState([]);
 
   // state for letting user create a post
@@ -99,7 +99,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
   useFocusEffect(
     useCallback(() => {
       fetchUserData();
-      getFavoriteExercises();
+      // getFavoriteExercises();
       getPosts();
     }, [])
   );
@@ -124,26 +124,26 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
     });
     setWorkouts(parsedWorkouts);
 
-    getFavoriteExercises();
+    // getFavoriteExercises();
   }, [userData]);
 
-  const getFavoriteExercises = async () => {
-    try {
-      const response = await axios.get(
-        BACKEND_URL + `/exercises/saved/${userData.id}`
-      );
-      const parsedExercises = response.data.map((exercise) => {
-        return {
-          id: exercise.id,
-          name: exercise.name,
-          timeCreated: exercise.saved,
-        };
-      });
-      setFavoriteExercises(parsedExercises);
-    } catch (e) {
-      console.log("error fetching favorite exercises: ", e);
-    }
-  };
+  // const getFavoriteExercises = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       BACKEND_URL + `/exercises/saved/${userData.id}`
+  //     );
+  //     const parsedExercises = response.data.map((exercise) => {
+  //       return {
+  //         id: exercise.id,
+  //         name: exercise.name,
+  //         timeCreated: exercise.saved,
+  //       };
+  //     });
+  //     setFavoriteExercises(parsedExercises);
+  //   } catch (e) {
+  //     console.log("error fetching favorite exercises: ", e);
+  //   }
+  // };
 
   // get posts every second (to allow for real time comment updating)
   // TODO this is a hacky solution, we should move to using websockets if time allows
@@ -300,7 +300,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchUserData();
-    await getFavoriteExercises();
+    // await getFavoriteExercises();
     setRefreshing(false);
   };
 
@@ -444,7 +444,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
               color={activeTab === "posts" ? "#6A5ACD" : "#aaa"}
             />
           </TouchableOpacity>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.icon}
             onPress={() => {
               setIsCreatingPost(false);
@@ -456,7 +456,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
               size={30}
               color={activeTab === "favoriteExercises" ? "#6A5ACD" : "#aaa"}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         <View style={styles.divider} />
@@ -494,7 +494,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
             <View style={styles.contentContainerHeader}>
               <Text style={styles.contentContainerText}>
                 {activeTab === "workouts" && "Workout Plans"}
-                {activeTab === "favoriteExercises" && "Favorite Exercises"}
+                {/* {activeTab === "favoriteExercises" && "Favorite Exercises"} */}
                 {activeTab === "posts" && "Posts"}
               </Text>
               <TouchableOpacity
@@ -516,7 +516,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
                   }
                 />
               )}
-              {activeTab === "favoriteExercises" &&
+              {/* {activeTab === "favoriteExercises" &&
                 favoriteExercises.length > 0 && (
                   <FlatList
                     data={favoriteExercises}
@@ -529,7 +529,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
                       />
                     }
                   />
-                )}
+                )} */}
               {activeTab === "posts" && posts.length > 0 &&(
                 <KeyboardAwareScrollView>
                   <FlatList
@@ -624,7 +624,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#6A5ACD",
     padding: 10,
     borderRadius: 5,
-    width: "50%",
+    width: "60%",
     marginTop: 5,
   },
   buttonText: {
