@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, TextInput, Button, StyleSheet, Text } from "react-native";
+import { View, TextInput, Button, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { BACKEND_URL } from "@env";
 import axios from "axios";
 
@@ -99,9 +99,12 @@ const SetEditor = ({ setId, setEditingSet, fetchRoutineInfo, setEditingSetTopLev
             <Text style={styles.label}>Weight</Text>
           </View>
         </View>
-        <View style={styles.buttonContainer}>
+        {/* <View style={styles.buttonContainer}>
           <Button title="Save" onPress={handleUpdateSet} color="#695acd" />
-        </View>
+        </View> */}
+        <TouchableOpacity style={styles.saveButton}>
+          <Text onPress={handleUpdateSet} style={styles.saveButtonText}>Save</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -151,7 +154,24 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 16,
     marginBottom: -10,
-  }
+  },
+  saveButton: {
+    borderWidth: 2,
+    borderColor: "#695acd",
+    borderRadius: 10,
+    backgroundColor: "#695acd",
+    width: "20%",
+    paddingVertical: 5,
+    alignItems: "center",
+    marginTop: 5,
+    marginBottom: 10,
+  },
+  saveButtonText: {
+    fontSize: 16,
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
 });
 
 export default SetEditor;
