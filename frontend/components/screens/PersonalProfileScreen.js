@@ -430,6 +430,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
               size={30}
               color={activeTab === "workouts" ? "#6A5ACD" : "#aaa"} 
             />
+            <View style={activeTab === "workouts" ? styles.activeUnderline : styles.inactiveUnderline} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.icon}
@@ -443,6 +444,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
               size={30}
               color={activeTab === "posts" ? "#6A5ACD" : "#aaa"}
             />
+            <View style={activeTab === "posts" ? styles.activeUnderline : styles.inactiveUnderline} />
           </TouchableOpacity>
           {/* <TouchableOpacity
             style={styles.icon}
@@ -785,7 +787,16 @@ const styles = StyleSheet.create({
   },
   postDeleteIcon: {
     marginTop: 5,
-  }
+  },
+  activeUnderline: {
+    height: 2,
+    width: '100%',
+    backgroundColor: '#6A5ACD',
+    marginTop: 2,
+  },
+  inactiveUnderline: {
+    height: 0,  
+  },
 });
 
 export default PersonalProfileScreen;

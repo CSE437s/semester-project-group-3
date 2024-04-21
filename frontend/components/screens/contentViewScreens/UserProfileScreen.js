@@ -441,37 +441,39 @@ const UserProfileScreen = ({ route, navigation }) => {
               setActiveTab("workouts")
             }}
           >
-            <MaterialIcons
-              name="fitness-center"
-              size={30}
-              color={activeTab === "workouts" ? "#6A5ACD" : "#aaa"} 
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.icon}
-            onPress={() => {
-              getPosts()
-              setActiveTab("posts")
-            }}
-          >
-            <Entypo
-              name="camera"
-              size={30}
-              color={activeTab === "posts" ? "#6A5ACD" : "#aaa"}
-            />
-          </TouchableOpacity>
-          {/* <TouchableOpacity
-            style={styles.icon}
-            onPress={() => {
-              setActiveTab("favoriteExercises")
-            }}
-          >
-            <MaterialIcons
-              name="star-border"
-              size={30}
-              color={activeTab === "favoriteExercises" ? "#6A5ACD" : "#aaa"}
-            />
-          </TouchableOpacity> */}
+          <MaterialIcons
+            name="fitness-center"
+            size={30}
+            color={activeTab === "workouts" ? "#6A5ACD" : "#aaa"} 
+          />
+          <View style={activeTab === "workouts" ? styles.activeUnderline : styles.inactiveUnderline} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.icon}
+          onPress={() => {
+            getPosts()
+            setActiveTab("posts")
+          }}
+        >
+          <Entypo
+            name="camera"
+            size={30}
+            color={activeTab === "posts" ? "#6A5ACD" : "#aaa"}
+          />
+          <View style={activeTab === "posts" ? styles.activeUnderline : styles.inactiveUnderline} />
+        </TouchableOpacity>
+        {/* <TouchableOpacity
+          style={styles.icon}
+          onPress={() => {
+            setActiveTab("favoriteExercises")
+          }}
+        >
+          <MaterialIcons
+            name="star-border"
+            size={30}
+            color={activeTab === "favoriteExercises" ? "#6A5ACD" : "#aaa"}
+          />
+        </TouchableOpacity> */}
       </View>
 
       <View style={styles.divider} />
@@ -723,7 +725,16 @@ const styles = StyleSheet.create({
   backButton: {
     marginLeft: 5,
     marginBottom: 5,
-  }
+  },
+  activeUnderline: {
+    height: 2,
+    width: '100%',
+    backgroundColor: '#6A5ACD',
+    marginTop: 2,
+  },
+  inactiveUnderline: {
+    height: 0,  
+  },
 });
 
 export default UserProfileScreen;
