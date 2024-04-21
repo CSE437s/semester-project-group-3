@@ -423,6 +423,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
+  placeholder: {
+    textAlign: "center",
+    marginTop: 20,
+    marginHorizontal: 30,
+  },
 });
 
 export default WorkoutPlansScreen;
