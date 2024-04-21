@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  Platform,
 } from "react-native";
 import { Calendar, CalendarList, Agenda } from "react-native-calendars";
 import FooterTab from "../../FooterTab";
@@ -77,6 +78,8 @@ const CalendarScreen = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
+      console.log(Platform.OS);
+
       const initializeData = async () => {
         await fetchScheduledWorkouts();
         const currentDate = new Date();

@@ -34,3 +34,6 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# wack
+frontend/components/screens/calendarScreens/ScheduleWorkoutScreen.js
