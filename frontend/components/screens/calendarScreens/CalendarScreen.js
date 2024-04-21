@@ -224,7 +224,15 @@ const CalendarScreen = ({ navigation }) => {
                         })
                       }
                     >
-                      <Text style={styles.workoutName}>{item.name}</Text>
+                      <Text
+                        style={
+                          item.completion == "complete"
+                            ? styles.finishedWorkoutName
+                            : styles.workoutName
+                        }
+                      >
+                        {item.name}
+                      </Text>
                     </TouchableOpacity>
                   );
                 })}
