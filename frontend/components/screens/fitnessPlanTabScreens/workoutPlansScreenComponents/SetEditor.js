@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, TextInput, Button, StyleSheet } from "react-native";
+import { View, TextInput, Button, StyleSheet, Text } from "react-native";
 import { BACKEND_URL } from "@env";
 import axios from "axios";
 
@@ -53,54 +53,50 @@ const SetEditor = ({ setId, setEditingSet, fetchRoutineInfo, setEditingSetTopLev
     <View>
       <View style={styles.container}>
         <View style={styles.formContainer}>
-          <View style={styles.inputContainer}>
-            <Button
-              title="-"
-              color="#695acd"
-              onPress={() => {
-                setReps(Math.max(0, parseInt(reps) - 1));
-              }}
-            />
-            <TextInput
-              placeholder="Reps"
-              style={styles.input}
-              value={reps.toString()}
-              onChangeText={setReps}
-              inputMode="numeric"
-              keyboardType="numeric"
-            />
-            <Button
-              title="+"
-              color="#695acd"
-              onPress={() => {
-                setReps(parseInt(reps) + 1);
-              }}
-            />
+        <View style={styles.inputContainer}>
+            <View style={styles.inputRow}>
+              <Button
+                title="-"
+                color="#695acd"
+                onPress={() => setReps(Math.max(0, parseInt(reps) - 1))}
+              />
+              <TextInput
+                placeholder="Reps"
+                style={styles.input}
+                value={reps.toString()}
+                onChangeText={setReps}
+                keyboardType="numeric"
+              />
+              <Button
+                title="+"
+                color="#695acd"
+                onPress={() => setReps(parseInt(reps) + 1)}
+              />
+            </View>
+            <Text style={styles.label}>Reps</Text>
           </View>
 
           <View style={styles.inputContainer}>
-            <Button
-              title="-"
-              color="#695acd"
-              onPress={() => {
-                setWeight(Math.max(0, parseInt(weight) - 5));
-              }}
-            />
-            <TextInput
-              placeholder="Weight"
-              style={styles.input}
-              value={weight.toString()}
-              onChangeText={setWeight}
-              inputMode="numeric"
-              keyboardType="numeric"
-            />
-            <Button
-              title="+"
-              color="#695acd"
-              onPress={() => {
-                setWeight(parseInt(weight) + 5);
-              }}
-            />
+            <View style={styles.inputRow}>
+              <Button
+                title="-"
+                color="#695acd"
+                onPress={() => setWeight(Math.max(0, parseInt(weight) - 5))}
+              />
+              <TextInput
+                placeholder="Weight"
+                style={styles.input}
+                value={weight.toString()}
+                onChangeText={setWeight}
+                keyboardType="numeric"
+              />
+              <Button
+                title="+"
+                color="#695acd"
+                onPress={() => setWeight(parseInt(weight) + 5)}
+              />
+            </View>
+            <Text style={styles.label}>Weight</Text>
           </View>
         </View>
         <View style={styles.buttonContainer}>
@@ -132,11 +128,16 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   inputContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: "column",  
+    alignItems: "center",   
     paddingVertical: 8,
     marginHorizontal: "2.5%",
     width: "45%",
+  },
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   input: {
     textAlign: "center",
@@ -146,6 +147,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     width: "60%",
   },
+  label: {
+    textAlign: "center",
+    fontSize: 16,
+    marginBottom: -10,
+  }
 });
 
 export default SetEditor;
