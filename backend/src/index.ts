@@ -1330,6 +1330,20 @@ app.post(`/workout/scheduled/complete`, async (req, res) => {
   }
 });
 
+app.delete(`/workout/scheduled/:id`, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await prisma.scheduledWorkout.delete({
+      where: { id: parseInt(id) },
+    });
+    res.sendStatus(200);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
+});
+
 //Universal search based on textual similarity to query
 app.get(`/search/:query`, async (req, res) => {
   const { query } = req.params;

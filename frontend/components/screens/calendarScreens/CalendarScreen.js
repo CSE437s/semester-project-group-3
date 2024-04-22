@@ -77,6 +77,18 @@ const CalendarScreen = ({ navigation }) => {
     }
   };
 
+  const handlePressDelete = async (id) => {
+    try {
+      const response = await axios.delete(
+        BACKEND_URL + `/workout/scheduled/${id}`
+      );
+      fetchScheduledWorkouts();
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error deleting scheduled workout", "Please try again later");
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
       const initializeData = async () => {
@@ -177,7 +189,7 @@ const CalendarScreen = ({ navigation }) => {
                     return (
                       <TouchableOpacity
                         key={item.id}
-                        style={styles.scheduledWorkoutContainer}
+                        style={styles.completedWorkoutContainer}
                       >
                         <Text style={styles.finishedWorkoutName}>
                           {item.name}
@@ -190,6 +202,14 @@ const CalendarScreen = ({ navigation }) => {
                         key={item.id}
                         style={styles.scheduledWorkoutCluster}
                       >
+                        <TouchableOpacity
+                          style={styles.deleteWorkoutButton}
+                          onPress={() => {
+                            handlePressDelete(item.id);
+                          }}
+                        >
+                          <AntDesign name="delete" size={16} color="black" />
+                        </TouchableOpacity>
                         <TouchableOpacity
                           style={styles.todayScheduledWorkoutContainer}
                           onPress={() =>
@@ -215,27 +235,57 @@ const CalendarScreen = ({ navigation }) => {
                   }
                 })
               : selectedDateWorkouts.map((item) => {
-                  return (
-                    <TouchableOpacity
-                      key={item.id}
-                      style={styles.scheduledWorkoutContainer}
-                      onPress={() =>
-                        navigation.navigate("IndividualWorkoutScreen", {
-                          workout_id: item.workout_id,
-                        })
-                      }
-                    >
-                      <Text
-                        style={
-                          item.completion == "complete"
-                            ? styles.finishedWorkoutName
-                            : styles.workoutName
-                        }
+                  if (item.completion == "complete") {
+                    return (
+                      <TouchableOpacity
+                        key={item.id}
+                        style={styles.completedWorkoutContainer}
                       >
-                        {item.name}
-                      </Text>
-                    </TouchableOpacity>
-                  );
+                        <Text style={styles.finishedWorkoutName}>
+                          {item.name}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  } else {
+                    if (new Date(selected) < new Date(today)) {
+                      return (
+                        <TouchableOpacity
+                          key={item.id}
+                          style={styles.missedWorkoutContainer}
+                        >
+                          <Text style={styles.missedWorkoutName}>
+                            {item.name}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    } else {
+                      return (
+                        <View
+                          key={item.id}
+                          style={styles.scheduledWorkoutCluster}
+                        >
+                          <TouchableOpacity
+                            style={styles.deleteWorkoutButton}
+                            onPress={() => {
+                              handlePressDelete(item.id);
+                            }}
+                          >
+                            <AntDesign name="delete" size={16} color="black" />
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={styles.scheduledWorkoutContainer}
+                            onPress={() =>
+                              navigation.navigate("IndividualWorkoutScreen", {
+                                workout_id: item.workout_id,
+                              })
+                            }
+                          >
+                            <Text style={styles.workoutName}>{item.name}</Text>
+                          </TouchableOpacity>
+                        </View>
+                      );
+                    }
+                  }
                 })}
           </ScrollView>
         </View>
@@ -268,7 +318,6 @@ const styles = StyleSheet.create({
   calendarContainer: { paddingBottom: "3%" },
   container: {
     width: "100%",
-    // height: "45%",
     backgroundColor: "#FFFFFF",
   },
   text: {
@@ -304,8 +353,27 @@ const styles = StyleSheet.create({
     marginBottom: "15%",
   },
   scheduledWorkoutContainer: {
-    width: "100%",
+    width: "88%",
     backgroundColor: "#b9aae7",
+    paddingTop: 15,
+    paddingBottom: 15,
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+  },
+  completedWorkoutContainer: {
+    width: "100%",
+    backgroundColor: "#dcd4f3",
+    paddingTop: 15,
+    paddingBottom: 15,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+  },
+  missedWorkoutContainer: {
+    width: "100%",
+    backgroundColor: "#dcd4f3",
     paddingTop: 15,
     paddingBottom: 15,
     borderRadius: 10,
@@ -320,8 +388,13 @@ const styles = StyleSheet.create({
   finishedWorkoutName: {
     fontSize: 16,
     textAlign: "center",
-    color: "red",
+    color: "#5CA24C",
     textDecorationLine: "line-through",
+  },
+  missedWorkoutName: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "#f44336",
   },
   scheduledWorkoutCluster: {
     display: "flex",
@@ -334,12 +407,10 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
     paddingHorizontal: 12,
     marginBottom: 12,
-    width: "80%",
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
+    width: "68%",
   },
   startWorkoutButton: {
-    backgroundColor: "#89ef72",
+    backgroundColor: "#dcd4f3",
     paddingTop: 15,
     paddingBottom: 15,
     paddingHorizontal: 12,
@@ -351,6 +422,17 @@ const styles = StyleSheet.create({
   startText: {
     textAlign: "center",
     fontWeight: "bold",
+  },
+  deleteWorkoutButton: {
+    backgroundColor: "#a699cf",
+    paddingTop: 15,
+    paddingBottom: 15,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+    width: "12%",
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
+    alignItems: "center",
   },
 });
 
