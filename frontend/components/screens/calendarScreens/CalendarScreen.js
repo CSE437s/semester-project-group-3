@@ -151,21 +151,38 @@ const CalendarScreen = ({ navigation }) => {
 
       {selectedDateWorkouts.length == 0 ? (
         <View style={styles.agendaContainer}>
-          <Text style={styles.agendaHeaderText}>
-            No Workouts Scheduled{" "}
-            {selected.toISOString().split("T")[0] === today
-              ? "Today"
-              : formatDate(selected.toISOString().split("T")[0])}
-          </Text>
+          <View style={styles.contentContainerHeader}>
+            <Text style={styles.agendaHeaderText}>
+              No Workouts Scheduled{" "}
+              {selected.toISOString().split("T")[0] === today
+                ? "Today"
+                : formatDate(selected.toISOString().split("T")[0])}
+            </Text>
+            <TouchableOpacity
+              style={styles.addNewButton}
+              onPress={onScheduleWorkoutPress}
+            >
+              <AntDesign name="pluscircle" size={36} color="#6A5ACD" />
+            </TouchableOpacity>
+          </View>
         </View>
       ) : (
         <View style={styles.agendaContainer}>
-          <Text style={styles.agendaHeaderText}>
-            Workouts Scheduled{" "}
-            {selected.toISOString().split("T")[0] === today
-              ? "Today"
-              : formatDate(selected.toISOString().split("T")[0])}
-          </Text>
+          <View style={styles.contentContainerHeader}>
+            <Text style={styles.agendaHeaderText}>
+              Workouts Scheduled{" "}
+              {selected.toISOString().split("T")[0] === today
+                ? "Today"
+                : formatDate(selected.toISOString().split("T")[0])}
+            </Text>
+            <TouchableOpacity
+              style={styles.addNewButton}
+              onPress={onScheduleWorkoutPress}
+            >
+              <AntDesign name="pluscircle" size={36} color="#6A5ACD" />
+            </TouchableOpacity>
+          </View>
+          
           <ScrollView style={styles.agendaItems}>
             {selected.toISOString().split("T")[0] === today
               ? selectedDateWorkouts.map((item) => {
@@ -213,12 +230,7 @@ const CalendarScreen = ({ navigation }) => {
         </View>
       )}
 
-      <TouchableOpacity
-        style={styles.addNewButton}
-        onPress={onScheduleWorkoutPress}
-      >
-        <AntDesign name="pluscircle" size={36} color="#6A5ACD" />
-      </TouchableOpacity>
+      
       <FooterTab focused={"Calendar"}></FooterTab>
     </>
   );
@@ -262,12 +274,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 16,
     paddingHorizontal: "3%",
-    marginRight: 50,
+    marginRight: 5,
   },
   addNewButton: {
-    position: "absolute",
-    right: "5%",
-    bottom: "47%",
+    paddingBottom: 15,
+    paddingRight: 15,
   },
   agendaItems: {
     width: "100%",
@@ -318,6 +329,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold",
   },
+  contentContainerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    marginBottom: 0,
+},
 });
 
 export default CalendarScreen;
