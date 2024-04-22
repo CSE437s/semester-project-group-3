@@ -24,6 +24,8 @@ import FooterTab from "../../FooterTab";
 import WorkoutBlock from "../../buildingBlocks/WorkoutBlock";
 
 const WorkoutPlansScreen = ({ route, navigation }) => {
+  const placeHolderImage = require("../../../assets/Weightlifter.jpeg");
+
   const [workoutPlans, setWorkoutPlans] = useState([]);
   const [created, setCreated] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -44,6 +46,7 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
         setLoading(true);
         setCurrentUserId(await AsyncStorage.getItem("user_id"));
         fetchWorkoutPlans();
+        loadSavedExercises();
       }
 
       getComponentData()
@@ -84,30 +87,12 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
     }
   }
 
-  // const fetchWorkoutPlans = async () => {
-  //   const userId = await AsyncStorage.getItem("user_id");
-  //   try {
-  //     const response = await axios.get(BACKEND_URL + `/workout/many/${userId}`);
-  //     if (response.status == 200) {
-  //       setWorkoutPlans(
-  //         response.data.sort((a, b) => {
-  //           //Sort by recent
-  //           const dateA = new Date(a.time_created);
-  //           const dateB = new Date(b.time_created);
-  //           return dateB - dateA;
-  //         })
-  //       );
-  //       setLoading(false);
-  //     }
-  //   } catch (error) {
-  //     if (!error.response) {
-  //       Alert.alert("Server issue", "Please try again later");
-  //     } else {
-  //       setWorkoutPlans([]);
-  //     }
-  //     console.log(error);
-  //   }
-  // };
+  const goToExercise = async (id) => {
+    const response = await axios.get(BACKEND_URL + `/exercises/one/${id}`);
+    navigation.navigate("ExerciseScreen", {
+      exerciseData: response.data,
+    });
+  };
 
   const fetchThumbnails = async (data) => {
     const thumbnailData = {};
@@ -304,7 +289,7 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
                       key={exercise.id}
                       style={styles.exerciseContainer}
                       onPress={() => {
-                        handlePress(exercise.id);
+                        goToExercise(exercise.id);
                       }}
                     >
                       <Image
