@@ -646,6 +646,9 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
                       </TouchableOpacity>
                     </View>
                 )}
+                {comments?.length === 0 && !addingComment && (
+                  <Text style={styles.no_comments_text}>This workout plan does not have any comments yet, click the + to be the first.</Text>
+                )}
                 {comments.map((comment) => renderComment({item: comment}))}
               </View>
               
@@ -813,6 +816,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingHorizontal: "3%",
     paddingTop: "3%",
+  },
+  no_comments_text: {
+    textAlign: "center",
   },
   titleText: {
     fontSize: 24,
