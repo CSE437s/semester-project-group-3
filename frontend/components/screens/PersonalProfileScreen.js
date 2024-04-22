@@ -439,8 +439,8 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
               setActiveTab("posts")
             }}
           >
-            <Entypo
-              name="camera"
+            <MaterialCommunityIcons
+              name="post-outline"
               size={30}
               color={activeTab === "posts" ? "#6A5ACD" : "#aaa"}
             />

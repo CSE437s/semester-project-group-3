@@ -455,10 +455,10 @@ const UserProfileScreen = ({ route, navigation }) => {
             setActiveTab("posts")
           }}
         >
-          <Entypo
-            name="camera"
-            size={30}
-            color={activeTab === "posts" ? "#6A5ACD" : "#aaa"}
+          <MaterialCommunityIcons
+              name="post-outline"
+              size={30}
+              color={activeTab === "posts" ? "#6A5ACD" : "#aaa"}
           />
           <View style={activeTab === "posts" ? styles.activeUnderline : styles.inactiveUnderline} />
         </TouchableOpacity>
