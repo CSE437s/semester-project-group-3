@@ -1377,6 +1377,23 @@ app.get(`/search/:query`, async (req, res) => {
   }
 });
 
+//Complete a workout
+app.post(`/workout/scheduled/complete`, async (req, res) => {
+  const { id } = req.body;
+
+  try {
+    const result = await prisma.scheduledWorkout.update({
+      where: { id: id },
+      data: { completion: "complete" },
+    });
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
+});
+
 //Smart search to use word embeddings to recommend exercises based on query, not just textual similarity to query
 app.get(`/search/smartsearch/:query`, async (req, res) => {
   const { query } = req.params;
