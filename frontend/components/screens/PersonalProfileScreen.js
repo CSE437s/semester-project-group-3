@@ -472,10 +472,6 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
                 value={caption}
                 placeholder="What's on your mind?"
               />
-              {/* TODO: the image button should call pickImage once we get that working */}
-              <TouchableOpacity style={styles.postIconButton} onPress={() => {}}>
-                <MaterialCommunityIcons name={'file-image-plus'} size={28} color={'#666666'}/>
-              </TouchableOpacity>
               <TouchableOpacity style={styles.postIconButton} onPress={submitPost}>
                 <FontAwesome name={'send'} size={28} color={'#695acd'}/>
               </TouchableOpacity>
@@ -773,7 +769,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 20,
     borderRadius: 5,
-    width: '70%',
+    width: '80%',
     backgroundColor: "#f7f7f7",
   },
   postIconButton: {
