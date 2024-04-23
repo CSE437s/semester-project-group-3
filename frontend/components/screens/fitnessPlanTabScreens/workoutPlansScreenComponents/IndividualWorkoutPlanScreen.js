@@ -26,6 +26,7 @@ import {
   AntDesign,
   MaterialIcons,
   MaterialCommunityIcons,
+  Ionicons
 } from "@expo/vector-icons";
 
 import {
@@ -47,6 +48,7 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
   const [comments, setComments] = useState([]);
   const [recommendedExercises, setRecommendedExercises] = useState([]);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [reccomendedExercisesOpen, setRecommendedExercisesOpen] = useState(false);
   // const [updatingRoutineState, setUpdateRoutineState] = useState({});
 
   // we will use this to check if the workout belongs to the current user
@@ -564,11 +566,26 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
                 isOwnedByCurrentUser &&
                 recommendedExercises.length !== 0 && (
                 !loadingReccs ? (
+                  // <View style={styles.bottomContent}>
                   <View style={styles.bottomContent}>
-                    <Text style={styles.exercisesText}>
-                      Recommended Exercises
-                    </Text>
-                    {recommendedExercises.map((exercise) => {
+                    <View style={styles.exerciseHeader}>
+                      <Text style={styles.exercisesText}>
+                        Recommended Exercises
+                      </Text>
+                      <TouchableOpacity
+                        style={styles.addIcon}
+                        onPress={() => {
+                          setRecommendedExercisesOpen(!reccomendedExercisesOpen);
+                        }}
+                      >
+                        <MaterialCommunityIcons
+                          name={reccomendedExercisesOpen ? "chevron-up-circle" : "chevron-down-circle"}
+                          size={32}
+                          color="#6A5ACD"
+                        />
+                      </TouchableOpacity>
+                    </View>
+                    {reccomendedExercisesOpen && recommendedExercises.map((exercise) => {
                       return (
                         <View
                           key={exercise.id}

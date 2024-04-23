@@ -9,6 +9,7 @@ import ExerciseScreen from "./screens/contentViewScreens/ExerciseScreen";
 import SearchScreen from "./screens/universalSearchScreens/SearchScreen";
 import WorkoutPlansScreen from "./screens/fitnessPlanTabScreens/WorkoutPlansScreen";
 import CreateNewWorkoutPlanScreen from "./screens/fitnessPlanTabScreens/workoutPlansScreenComponents/CreateNewWorkoutPlanScreen";
+import WorkoutGenerationScreen from "./screens/fitnessPlanTabScreens/workoutPlansScreenComponents/WorkoutGenerationScreen";
 import EditWorkoutPlanScreen from "./screens/fitnessPlanTabScreens/workoutPlansScreenComponents/EditWorkoutPlanScreen";
 import IndividualWorkoutPlanScreen from "./screens/fitnessPlanTabScreens/workoutPlansScreenComponents/IndividualWorkoutPlanScreen";
 import UserProfileScreen from "./screens/contentViewScreens/UserProfileScreen";
@@ -52,6 +53,10 @@ const FooterNavigator = ({ handleAuthChange }) => {
       <Stack.Screen
         name="CreateNewWorkoutPlan"
         component={CreateNewWorkoutPlanScreen}
+      />
+      <Stack.Screen
+        name="WorkoutGenerationScreen"
+        component={WorkoutGenerationScreen}
       />
       <Stack.Screen name="EditWorkoutPlan" component={EditWorkoutPlanScreen} />
       <Stack.Screen
