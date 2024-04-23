@@ -132,6 +132,7 @@ const ScheduleWorkoutScreen = ({ route, navigation }) => {
 
           <Text style={styles.subtitleText}>Workout:</Text>
           <SelectList
+            style={styles.selectListStyle}
             setSelected={(val) => setSelected(val)}
             data={workouts}
             save="key"
@@ -139,6 +140,9 @@ const ScheduleWorkoutScreen = ({ route, navigation }) => {
             minHeight={100}
             maxHeight={120}
             placeholder="Select a Workout"
+            dropdownStyles={{
+              minWidth: 168,
+            }}
           ></SelectList>
 
           <View style={styles.buttonContainer}>
