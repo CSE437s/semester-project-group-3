@@ -18,6 +18,7 @@ import {
 import { Text, View, set } from "@gluestack-ui/themed";
 import { BACKEND_URL } from "@env";
 import BackArrowIcon from "../../../icons/BackArrowIcon";
+import UserProfileBackArrowIcon from "../../../icons/UserProfileBackIcon";
 import Routine from "./Routine";
 import RoutineInfo from "./RoutineInfo";
 import {
@@ -399,7 +400,7 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
               navigation.goBack();
             }}
           >
-            <BackArrowIcon></BackArrowIcon>
+            <UserProfileBackArrowIcon></UserProfileBackArrowIcon>
             {/* <Text> Back to your Workout Plans</Text> */}
           </TouchableOpacity>
           {loading ? (
