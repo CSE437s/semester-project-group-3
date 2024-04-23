@@ -6,6 +6,7 @@ import axios from "axios";
 import { BACKEND_URL } from "@env";
 import { formatDistanceToNow, set } from "date-fns";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 
 const COMMENT_PAGE_LENGTH = 4;
 
@@ -17,7 +18,8 @@ const WorkoutBlock = ({
     handleWorkoutPress, 
     fromProfilePage,
     openCommentBlock, 
-    setOpenCommentBlock  
+    setOpenCommentBlock,
+    onNavigateToUserProfile,
 }) => {
     const [liked, setLiked] = useState(item.likes.some(like => parseInt(like.userId) === parseInt(currentUserId)));
     const [likeCount, setLikeCount] = useState(item.likes.length);
@@ -31,6 +33,11 @@ const WorkoutBlock = ({
     const [comments, setComments] = useState(item.comments ?? []);
     const [visibleComments, setVisibleComments] = useState(item.comments?.slice(0, COMMENT_PAGE_LENGTH) ?? []);
     const [currentPage, setCurrentPage] = useState(0);
+
+    // if (item.name == "Leg day") {
+    //     console.log("bm - item: ", item);
+    //     console.log(item.comments.length)
+    // }
 
     const postComment = async () => {
         if (newComment === "") {
@@ -159,13 +166,15 @@ const WorkoutBlock = ({
             <View style={styles.workoutMainContent}>
                 {/* If we are rendering on a profile page, we don't need the username */}
                 {!fromProfilePage && (
-                    <Text>
-                        <Text style={styles.username}>{item.username}</Text>
-                        <Text style={styles.workoutDescription}>
+                    <View style={styles.usernameAndDescriptionContainer}>
+                        <TouchableOpacity onPress={() => onNavigateToUserProfile(item.userId)}>
+                            <Text style={styles.username}>{item.username}</Text>
+                        </TouchableOpacity>
+                        <Text>
                             {" "}
                             created a new workout plan
                         </Text>
-                    </Text>
+                    </View>
                 )}
                 <Text style={styles.workoutName}>{item.name}</Text>
             </View>
@@ -180,7 +189,7 @@ const WorkoutBlock = ({
                         )}
                         <Text style={styles.workoutLikesCount}>{likeCount}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.postCommentIconContainer} onPress={() => setCommentsOpen(!commentsOpen)} disabled={openCommentBlock !== -1 && openCommentBlock !== parseInt(item.id)}>
+                    <TouchableOpacity style={styles.postCommentIconContainer} onPress={handleWorkoutPress}>
                         <MaterialCommunityIcons name="comment-outline" size={24} color={!commentsOpen ? ('grey') : ('#a99ee1')} />
                         <Text style={styles.workoutLikesCount}>{commentCount}</Text>
                     </TouchableOpacity>
@@ -191,46 +200,6 @@ const WorkoutBlock = ({
                     })}
                 </Text>
             </View>
-
-            {commentsOpen && (
-                <View style={styles.commentsContainer}>
-                    <View style={styles.newCommentContainer}>
-                        <TextInput
-                            style={styles.commentInput}
-                            onChangeText={setNewComment}
-                            value={newComment}
-                            placeholder="Write a comment..."
-                            onSubmitEditing={postComment}
-                        />
-                        <TouchableOpacity onPress={postComment}>
-                            <MaterialCommunityIcons name="send" size={24} color="#695acd" />
-                        </TouchableOpacity>
-                    </View>
-                    <FlatList
-                        data={visibleComments} 
-                        keyExtractor={(comment) => comment.id.toString()}
-                        renderItem={renderComment}
-                        style={styles.commentsList}
-                    />
-                    <View style={styles.paginationControls}>
-                        {(currentPage !== 0) ? (
-                            <TouchableOpacity onPress={handlePrevious} disabled={currentPage === 0}>
-                                <MaterialCommunityIcons name="chevron-left" size={32} color="black" />
-                            </TouchableOpacity>
-                        ) : (
-                            <TouchableOpacity disabled={true}></TouchableOpacity>
-                        )}
-                        {((currentPage + 1) * COMMENT_PAGE_LENGTH < item.comments.length) ? (
-                            <TouchableOpacity onPress={handleNext} disabled={(currentPage + 1) * COMMENT_PAGE_LENGTH >= item.comments.length}>
-                                <MaterialCommunityIcons name="chevron-right" size={32} color="black" />
-                            </TouchableOpacity>
-                        ) : (
-                            <TouchableOpacity disabled={true}></TouchableOpacity>
-                        )}
-                        
-                    </View>
-                </View>
-            )}
             
         </TouchableOpacity>
     );
@@ -243,6 +212,7 @@ const styles = StyleSheet.create({
         paddingBottom: 15,
         paddingHorizontal: 20,
         marginVertical: 8,
+        marginBottom: 12,
         marginHorizontal: 16,
         borderRadius: 10,
         shadowColor: "#000",
@@ -341,6 +311,11 @@ const styles = StyleSheet.create({
     postCommentIconContainer: {
         flexDirection: "row",
         marginLeft: 10,
+    },
+    usernameAndDescriptionContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 4
     },
 });
 

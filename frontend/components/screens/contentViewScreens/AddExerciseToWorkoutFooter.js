@@ -76,7 +76,7 @@ const AddExerciseToWorkoutFooter = ({ setAddingToWorkout, exercise_id }) => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Workouts:</Text>
+        <Text style={styles.title}>Add this exercise to a workout:</Text>
         <FlatList
           data={workoutPlans}
           keyExtractor={(item) => item.id.toString()}
@@ -95,6 +95,7 @@ const AddExerciseToWorkoutFooter = ({ setAddingToWorkout, exercise_id }) => {
 
 const styles = StyleSheet.create({
   container: {
+    maxHeight: 250,
     flex: 1,
     position: "absolute",
     bottom: 0,
@@ -135,6 +136,7 @@ const styles = StyleSheet.create({
     width: 70,
     alignItems: "center",
     marginBottom: 10,
+    marginTop: 10,
   },
   buttonText: {
     color: "white",

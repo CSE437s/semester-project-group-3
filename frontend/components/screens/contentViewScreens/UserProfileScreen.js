@@ -8,37 +8,37 @@ import {
   FlatList,
   RefreshControl,
   Image,
+  Keyboard,
 } from "react-native";
 import { View, VStack, Button, ButtonText, set } from "@gluestack-ui/themed";
 import { MaterialIcons, Entypo, MaterialCommunityIcons } from "react-native-vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { formatDistanceToNow } from "date-fns";
 
-// import TopBarMenu from "../TopBarMenu";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 import WorkoutBlock from "../../buildingBlocks/WorkoutBlock";
 import PostBlock from "../../buildingBlocks/PostBlock";
+import FooterTab from "../../FooterTab";
+
+import { Icon, ArrowLeftIcon } from "@gluestack-ui/themed";
 
 import { BACKEND_URL } from "@env";
 
+import UserProfileBackIcon from "../../icons/UserProfileBackIcon";
+
 const UserProfileScreen = ({ route, navigation }) => {
-  const userIdFromRoute = route.params?.userId;
-
-
-  const [userId, setUserId] = useState(userIdFromRoute); // id of user we want to display profile for (empty string means current user's profile)
+  const [userId, setUserId] = useState(route.params?.userId); // id of user we want to display profile for (empty string means current user's profile)
   const [currentUserId, setCurrentUserId] = useState(""); // id of currently logged in user
-
   const [userData, setUserData] = useState(null);
-
-  const [activeTab, setActiveTab] = useState("workouts"); // 'workouts' or 'favoriteExercises' or 'posts'
-
+  const [activeTab, setActiveTab] = useState("workouts"); // 'workouts' or 'posts'
   const [refreshing, setRefreshing] = useState(false);
 
   const [workouts, setWorkouts] = useState([]);
-  const [favoriteExercises, setFavoriteExercises] = useState([]);
+  // const [favoriteExercises, setFavoriteExercises] = useState([]);
   const [posts, setPosts] = useState([]);
 
   const [followers, setFollowers] = useState(0);
@@ -46,7 +46,6 @@ const UserProfileScreen = ({ route, navigation }) => {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  // if logged in user is looking at own profile, this has no effect (since userId is set to currentUserId)
   // if logged in user is looking at another user's profile, this will be set based on whether they follow them or not
   const [isFollowing, setIsFollowing] = useState(false);
 
@@ -56,12 +55,43 @@ const UserProfileScreen = ({ route, navigation }) => {
   // -1 means no workout comment blocks are open, otherwise it is the id of the workout that has the comment block open
   const [openWorkoutCommentBlock, setOpenWorkoutCommentBlock] = useState(-1);
 
-  // when we access from a different user's profile, we need to set the userId state
+  // use this so that we don't display the footer bar when the keyboard is visible
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
   useEffect(() => {
-    if (userIdFromRoute) {
-      setUserId(userIdFromRoute);
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setKeyboardVisible(true); // Keyboard is visible
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardVisible(false); // Keyboard is hidden
+      }
+    );
+
+    // Cleanup function
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (route.params?.userId) {
+      setUserId(route.params?.userId);
     }
-  }, [userIdFromRoute]);
+  }, [route.params?.userId]),
+
+  // This will handle the focus and ensure data is refreshed when navigating back to the screen
+  useFocusEffect(
+    useCallback(() => {
+      setUserId(route.params?.userId);  // Update userId from route when focused
+      return () => console.log("Screen was unfocused");
+    }, [route.params?.userId])
+  );
 
   // fetch currently logged in user on iniital load
   useEffect(() => {
@@ -81,7 +111,7 @@ const UserProfileScreen = ({ route, navigation }) => {
       }
     };
     getCurrentUserId();
-  }, []);
+  }, [userId]);
 
   // check if the current user is following the user whose profile we are viewing
   useEffect(() => {
@@ -104,20 +134,10 @@ const UserProfileScreen = ({ route, navigation }) => {
     if (userId) {
       // fetch user data
       fetchUserData();
-      getFavoriteExercises();
+      // getFavoriteExercises();
+      getPosts();
     }
   }, [userId]);
-
-  // if userId is populated, then we should be re-fetching data every time the page is navigated to
-  useFocusEffect(
-    useCallback(() => {
-      if (userId) {
-        fetchUserData();
-        getFavoriteExercises();
-        getPosts();
-      }
-    }, [userId])
-  );
 
   useEffect(() => {
     if (currentUserId !== "" && userData !== null && userId) {
@@ -145,26 +165,35 @@ const UserProfileScreen = ({ route, navigation }) => {
     });
     setWorkouts(parsedWorkouts);
 
-    getFavoriteExercises();
+    // getFavoriteExercises();
   }, [userData]);
 
-  const getFavoriteExercises = async () => {
-    try {
-      const response = await axios.get(
-        BACKEND_URL + `/exercises/saved/${userId}`
-      );
-      const parsedExercises = response.data.map((exercise) => {
-        return {
-          id: exercise.id,
-          name: exercise.name,
-          timeCreated: exercise.saved,
-        };
-      });
-      setFavoriteExercises(parsedExercises);
-    } catch (e) {
-      console.log("bm - error fetching favorite exercises: ", e);
+  // const getFavoriteExercises = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       BACKEND_URL + `/exercises/saved/${userId}`
+  //     );
+  //     const parsedExercises = response.data.map((exercise) => {
+  //       return {
+  //         id: exercise.id,
+  //         name: exercise.name,
+  //         timeCreated: exercise.saved,
+  //       };
+  //     });
+  //     setFavoriteExercises(parsedExercises);
+  //   } catch (e) {
+  //     console.log("bm - error fetching favorite exercises: ", e);
+  //   }
+  // };
+
+  const onNavigateToUserProfile = (userId) => {
+    if (parseInt(userId) === parseInt(currentUserId)) {
+      navigation.navigate("PersonalProfile");
+    } else {
+      console.log("bm - navigating to user profile with userId: ", userId)
+      navigation.navigate("UserProfile", { userId });
     }
-  };
+  }
 
   // fetch data associated with current user and populate the userData state
   const fetchUserData = async () => {
@@ -184,7 +213,7 @@ const UserProfileScreen = ({ route, navigation }) => {
       await handleFollow();
     }
     fetchUserData();
-    getFavoriteExercises();
+    // getFavoriteExercises();
   };
 
   const handleFollow = async () => {
@@ -230,6 +259,7 @@ const UserProfileScreen = ({ route, navigation }) => {
 
     return (
       <WorkoutBlock 
+        key={`workout-${item.id}-${item.comments.length}`}
         item={item}
         currentUserId={currentUserId}
         handleWorkoutPress={handleWorkoutPress}
@@ -277,6 +307,7 @@ const UserProfileScreen = ({ route, navigation }) => {
     const intervalId = setInterval(() => {
       // console.log("fetching posts...")
       if (activeTab === "posts") {
+        console.log('fetching user posts...')
         getPosts();
       } else if (activeTab === "workouts") {
         console.log("fetching user data...")
@@ -285,7 +316,7 @@ const UserProfileScreen = ({ route, navigation }) => {
     }, 1000);
 
     return () => clearInterval(intervalId);
-  }, [activeTab])
+  }, [activeTab, userId])
 
   const renderPostItem = ({ item }) => {
     return (
@@ -295,6 +326,7 @@ const UserProfileScreen = ({ route, navigation }) => {
         fromProfilePage={true}
         openCommentBlock={openPostCommentBlock}
         setOpenCommentBlock={setOpenPostCommentBlock}
+        onNavigateToUserProfile={onNavigateToUserProfile}
       />
     )
   }
@@ -328,9 +360,10 @@ const UserProfileScreen = ({ route, navigation }) => {
   };
 
   const onRefresh = async () => {
+    setUserId(route.params?.userId)
     setRefreshing(true);
     await fetchUserData();
-    await getFavoriteExercises();
+    // await getFavoriteExercises();
     setRefreshing(false);
   };
 
@@ -343,7 +376,17 @@ const UserProfileScreen = ({ route, navigation }) => {
   }
 
   return (
+    <>
+    
     <SafeAreaView style={styles.container}>
+      <TouchableOpacity style={[styles.icon, styles.backButton]}>
+        <MaterialCommunityIcons
+          name="arrow-left"
+          size={30}
+          color="grey"
+          onPress={() => navigation.goBack()}
+        />
+      </TouchableOpacity>
       <View style={styles.profileContainer}>
         <MaterialIcons
           name="account-circle"
@@ -379,6 +422,14 @@ const UserProfileScreen = ({ route, navigation }) => {
         </View>
       </View>
       <View style={styles.buttonsAndIconsContainer}>
+        {/* <TouchableOpacity style={styles.icon}>
+          <MaterialCommunityIcons
+            name="arrow-left"
+            size={30}
+            color="grey"
+            onPress={() => navigation.goBack()}
+          />
+        </TouchableOpacity> */}
         <TouchableOpacity style={styles.button} onPress={handleFollowUnfollow}>
           <Text style={styles.buttonText}>
             {isFollowing ? "Unfollow" : "Follow"}
@@ -390,37 +441,39 @@ const UserProfileScreen = ({ route, navigation }) => {
               setActiveTab("workouts")
             }}
           >
-            <MaterialIcons
-              name="fitness-center"
-              size={30}
-              color={activeTab === "workouts" ? "#6A5ACD" : "#aaa"} 
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.icon}
-            onPress={() => {
-              getPosts()
-              setActiveTab("posts")
-            }}
-          >
-            <Entypo
-              name="camera"
+          <MaterialIcons
+            name="fitness-center"
+            size={30}
+            color={activeTab === "workouts" ? "#6A5ACD" : "#aaa"} 
+          />
+          <View style={activeTab === "workouts" ? styles.activeUnderline : styles.inactiveUnderline} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.icon}
+          onPress={() => {
+            getPosts()
+            setActiveTab("posts")
+          }}
+        >
+          <MaterialCommunityIcons
+              name="post-outline"
               size={30}
               color={activeTab === "posts" ? "#6A5ACD" : "#aaa"}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.icon}
-            onPress={() => {
-              setActiveTab("favoriteExercises")
-            }}
-          >
-            <MaterialIcons
-              name="star-border"
-              size={30}
-              color={activeTab === "favoriteExercises" ? "#6A5ACD" : "#aaa"}
-            />
-          </TouchableOpacity>
+          />
+          <View style={activeTab === "posts" ? styles.activeUnderline : styles.inactiveUnderline} />
+        </TouchableOpacity>
+        {/* <TouchableOpacity
+          style={styles.icon}
+          onPress={() => {
+            setActiveTab("favoriteExercises")
+          }}
+        >
+          <MaterialIcons
+            name="star-border"
+            size={30}
+            color={activeTab === "favoriteExercises" ? "#6A5ACD" : "#aaa"}
+          />
+        </TouchableOpacity> */}
       </View>
 
       <View style={styles.divider} />
@@ -428,7 +481,7 @@ const UserProfileScreen = ({ route, navigation }) => {
       <View style={styles.contentContainerHeader}>
         <Text style={styles.contentContainerText}>
           {activeTab === "workouts" && "Workout Plans"}
-          {activeTab === "favoriteExercises" && "Favorite Exercises"}
+          {/* {activeTab === "favoriteExercises" && "Favorite Exercises"} */}
           {activeTab === "posts" && "Posts"}
         </Text>
       </View>
@@ -444,7 +497,7 @@ const UserProfileScreen = ({ route, navigation }) => {
             }
           />
         )}
-        {activeTab === "favoriteExercises" && favoriteExercises.length > 0 && (
+        {/* {activeTab === "favoriteExercises" && favoriteExercises.length > 0 && (
           <FlatList
             data={favoriteExercises}
             keyExtractor={(item) => item.id.toString()}
@@ -453,9 +506,10 @@ const UserProfileScreen = ({ route, navigation }) => {
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
           />
-        )}
+        )} */}
         {activeTab === "posts" && posts.length > 0 &&(
-          <FlatList
+          <KeyboardAwareScrollView>
+            <FlatList
             data={posts}
             keyExtractor={(item) => item.id.toString()}
             renderItem={renderPostItem}
@@ -466,9 +520,12 @@ const UserProfileScreen = ({ route, navigation }) => {
               />
             }
           />
+          </KeyboardAwareScrollView>
         )}
       </View>
+      <FooterTab focused={""}></FooterTab>
     </SafeAreaView>
+    </>
   );
 };
 
@@ -536,7 +593,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#6A5ACD",
     padding: 10,
     borderRadius: 5,
-    width: "50%",
+    width: "60%",
     marginTop: 5,
   },
   buttonText: {
@@ -563,7 +620,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     marginTop: 5,
-    marginBottom: "60%", // contols how close to the footerNavigator that the content (FlatLists) is
+    marginBottom: "93%", // contols how close to the footerNavigator that the content (FlatLists) is
   },
   workoutName: {
     fontWeight: "bold",
@@ -664,6 +721,19 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     fontSize: 16,
     color: "black",
+  },
+  backButton: {
+    marginLeft: 5,
+    marginBottom: 5,
+  },
+  activeUnderline: {
+    height: 2,
+    width: '100%',
+    backgroundColor: '#6A5ACD',
+    marginTop: 2,
+  },
+  inactiveUnderline: {
+    height: 0,  
   },
 });
 

@@ -17,7 +17,8 @@ const PostBlock = ({
     canDelete, 
     onDeletePost, 
     openCommentBlock, 
-    setOpenCommentBlock 
+    setOpenCommentBlock,
+    onNavigateToUserProfile,
 }) => {
     const [liked, setLiked] = useState(item.likes.some(like => parseInt(like.userId) === parseInt(currentUserId)));
     const [likeCount, setLikeCount] = useState(item.likes.length);
@@ -137,11 +138,16 @@ const PostBlock = ({
     const renderComment = ({item}) => {
         return (
             <View style={styles.commentItemContainer}>
-                <Text style={styles.commentText}>
-                    <Text style={styles.commentUsername}>{item.user.username}<Text style={{fontWeight: 'normal'}}>: </Text></Text>
-                    <Text style={styles.commentContent}>{item.content}</Text>
-                </Text>
-                
+                <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
+                    <TouchableOpacity onPress={() => onNavigateToUserProfile(item.userId)}>
+                        <Text style={[styles.commentUsername, { marginRight: 5 }]}>
+                            {item.user.username}:
+                        </Text>
+                    </TouchableOpacity>
+                    <Text style={styles.commentText}>
+                        <Text style={styles.commentContent}>{item.content}</Text>
+                    </Text>
+                </View>
                 {item.userId === currentUserId && (
                     <TouchableOpacity onPress={() => deleteComment(item.id)} style={styles.trashIcon}>
                         <MaterialCommunityIcons name="trash-can-outline" size={20} color="grey" />
@@ -161,9 +167,13 @@ const PostBlock = ({
     }, [commentsOpen]);
 
     return (
-        <TouchableOpacity style={styles.post} onPress={() => {}}>
+        <TouchableOpacity style={styles.post} onPress={() => setCommentsOpen(!commentsOpen)} disabled={openCommentBlock !== -1 && openCommentBlock !== parseInt(item.id)}>
             <View style={styles.postHeader}>
-                {!fromProfilePage && <><Text style={styles.username}>{item.username}</Text><Text>: </Text></>}
+                {!fromProfilePage && 
+                    <TouchableOpacity onPress={() => onNavigateToUserProfile(item.userId)}>
+                        <Text style={styles.username}>{item.username}: </Text>
+                    </TouchableOpacity>
+                }
                 <View style={styles.captionAndIconContainer}>
                     <Text style={styles.postCaption}>{item.caption}</Text>
                     {canDelete && (
@@ -239,11 +249,14 @@ const PostBlock = ({
 }
 const styles = StyleSheet.create({
     post: {
+        width: "91%",
+        flex: 1,
         backgroundColor: "#FFF",
         paddingTop: 10,
         paddingBottom: 15,
         paddingHorizontal: 20,
         marginVertical: 8,
+        marginBottom: 12,
         marginHorizontal: 16,
         borderRadius: 10,
         shadowColor: "#000",
@@ -252,6 +265,7 @@ const styles = StyleSheet.create({
         shadowRadius: 1.5,
         elevation: 3,
         flexDirection: "column",
+        justifyContent: "space-between",
     },
     postHeader: {
         flexDirection: "row",

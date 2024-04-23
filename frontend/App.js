@@ -29,6 +29,11 @@ import IndividualWorkoutPlanScreen from "./components/screens/fitnessPlanTabScre
 import UserProfileScreen from "./components/screens/contentViewScreens/UserProfileScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
+// THIS SUPPRESSES AN ERROR FROM USING KeyboardAwareScrollView INSIDE OF A SCROLL LIST
+// IF WERE GETTING WIERD ERRORS, THIS IS PROBABLY THE CAUSE AND WE CANT USE KeyboardAwareScrollView
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
+
 const Stack = createNativeStackNavigator;
 
 const App = () => {
