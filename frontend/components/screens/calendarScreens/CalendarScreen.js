@@ -222,7 +222,7 @@ const CalendarScreen = ({ navigation }) => {
                             handlePressDelete(item.id);
                           }}
                         >
-                          <AntDesign name="delete" size={16} color="black" />
+                          <AntDesign name="delete" size={16} color="black" style={{marginTop: 3}}/>
                         </TouchableOpacity>
                         <TouchableOpacity
                           style={styles.todayScheduledWorkoutContainer}

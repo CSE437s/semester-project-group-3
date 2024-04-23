@@ -152,7 +152,7 @@ const ScheduleWorkoutScreen = ({ route, navigation }) => {
                 }
               }}
             >
-              <Text style={styles.saveButtonText}>Create</Text>
+              <Text style={styles.saveButtonText}>Schedule</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
