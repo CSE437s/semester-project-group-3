@@ -131,6 +131,10 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
     }
   };
 
+  const handleWorkoutGenerateButtonPress = async () => {
+    navigation.navigate("WorkoutGenerationScreen")
+  };
+
   // const renderWorkoutItem = (item) => {
   //   return (
   //     <TouchableOpacity
@@ -231,6 +235,13 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
                 onPress={handleAddMoreButtonPress}
               >
                 <MaterialIcons name="add-circle" size={28} color="#6A5ACD" />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.contentContainerButton}
+                onPress={handleWorkoutGenerateButtonPress}
+              >
+                <MaterialIcons name="smart-toy" size={28} color="#6A5ACD" />
               </TouchableOpacity>
             </View>
             {loading ? (
@@ -350,7 +361,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
     backgroundColor: "#CCCCCC",
-    marginTop: 20,
+    marginTop: 10,
   },
   space: {
     marginTop: 20,
@@ -371,7 +382,7 @@ const styles = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 10,
+    paddingHorizontal: 30,
     marginBottom: "4%",
     width: "100%",
   },

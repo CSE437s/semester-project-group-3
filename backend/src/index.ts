@@ -499,6 +499,46 @@ app.get("/user/following/:userId", async (req, res) => {
   }
 });
 
+// need workoutCategory, potentially additional user requests such as 
+// Id of the newly created workout to add exercises too, the workout category, perha
+app.post(`/workout/generation/:workoutId/:workoutCategory`, async (req, res) => {
+  // take the workoutCategory, request ChatGPT for exercise suggestions
+    // optionally, ask for a cardio at start, and a stretch at the end 
+  // use those suggestions and smart-search through database for each
+  // grab exercise ids based on smart search, perhaps keep the 1st and 5th suggested (for some randomness), play with this
+  // add all of the exercise IDs to that workout
+  const { workoutId, workoutCategory } = req.params
+
+  let rec_prompt = "From the perspective of a sports physiologist, please recommend exercises for the user's workout category that " +
+                   "target muscle groups not already addressed by their existing exercises. Provide 5 suggestions, each separated " +
+                   "by only a comma, ranked from top recommendation to more experimental, each followed by the primary muscle " +
+                   "worked in a parenthetical. The workout category and existing exercises will be specified by the user. Finally, " +
+                   "end the message with a warmup cardio exercise and a cooldown stretch with parentheticals labelling them as such. " +
+                   "instance, if the user's workout category is 'push/pull' and the existing exercises are 'bench press, pull-ups', " +
+                   "your response might be: 'barbell deadlift (lower back), dumbbell flyes (chest), leg press (quadriceps), hack squat " +
+                   "(quadriceps), tricep extensions (triceps), jumping jacks (cardio), butterfly (stretch)'. " + 
+                   "When categorizing an exercise, use the following muscle group options: " +
+                   "abdominals, abductors, adductors, biceps, calves, chest, forearms, glutes, hamstrings, lats, lower back, middle back, " +
+                   "neck, quadriceps, traps, triceps, shoulders."
+
+  let user_content = `Workout Category: ${workoutCategory} | Existing exercises: NONE`
+
+  const completion = await openai.chat.completions.create({
+    messages: [{"role": "system", "content": rec_prompt},
+        {"role": "user", "content": user_content}],
+    model: "gpt-3.5-turbo",
+  });
+  
+  let content = JSON.stringify(completion.choices[0].message.content + "")
+  console.log("response: ", content);
+  console.log("full: ", completion);
+  const exercises = content.replace(/"/g, "").split(',').map((exercise) => exercise.trim());
+  console.log("exercises:", exercises)
+  // exercises.forEach((exercise) => {
+  //   console.log("exercise: ", exercise)
+  // })
+  res.status(200).json(exercises)
+})
 // Get recommended exercises from centroid vector of workout by id
 app.get(`/exercises/recommendations/:workoutId`, async (req, res) => {
   const { workoutId } = req.params;
@@ -781,7 +821,7 @@ app.get(`/workout/many/:userId`, async (req, res) => {
 //Create workout
 app.post(`/workout/create`, async (req, res) => {
   const { userId, name, difficulty, description, tags } = req.body;
-
+  // console.log("difficulty: " + difficulty)
   try {
     const result = await prisma.workout.create({
       data: {
@@ -799,7 +839,8 @@ app.post(`/workout/create`, async (req, res) => {
 
     res.status(201).json(result);
   } catch (e) {
-    console.log(e);
+    console.log("Error in /create/workout: " + e)
+    // console.log(e);
     res.sendStatus(400);
   }
 });
