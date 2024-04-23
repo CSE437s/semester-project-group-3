@@ -9,6 +9,8 @@ import {
 } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
+const ICON_SIZE = 28;
+
 const FooterTab = ({ focused }) => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -23,7 +25,7 @@ const FooterTab = ({ focused }) => {
       >
         <Ionicons
           name="people-sharp"
-          size={24}
+          size={ICON_SIZE}
           color={focused === "FriendFeed" ? "#6A5ACD" : "grey"}
         />
       </TouchableOpacity>
@@ -35,7 +37,7 @@ const FooterTab = ({ focused }) => {
       >
         <MaterialCommunityIcons
           name="weight-lifter"
-          size={24}
+          size={ICON_SIZE}
           color={focused === "FitnessPlans" ? "#6A5ACD" : "grey"}
         />
       </TouchableOpacity>
@@ -47,7 +49,7 @@ const FooterTab = ({ focused }) => {
       >
         <MaterialIcons
           name="search"
-          size={24}
+          size={ICON_SIZE}
           color={focused === "search" ? "#6A5ACD" : "grey"}
         />
       </TouchableOpacity>
@@ -60,7 +62,7 @@ const FooterTab = ({ focused }) => {
       >
         <AntDesign
           name="calendar"
-          size={24}
+          size={ICON_SIZE}
           color={focused === "Calendar" ? "#6A5ACD" : "grey"}
         />
       </TouchableOpacity>
@@ -72,7 +74,7 @@ const FooterTab = ({ focused }) => {
       >
         <Ionicons
           name="person-circle-sharp"
-          size={24}
+          size={ICON_SIZE}
           color={focused === "PersonalProfile" ? "#6A5ACD" : "grey"}
         />
       </TouchableOpacity>
@@ -87,12 +89,11 @@ const styles = {
     left: 0,
     right: 0,
     flexDirection: "row",
-    height: 65,
+    height: 65, // old: 65
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: "5%",
-    paddingBottom: 15,
   },
   tabItem: {
     justifyContent: "center",
