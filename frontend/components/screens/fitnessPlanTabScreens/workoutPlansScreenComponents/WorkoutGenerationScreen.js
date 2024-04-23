@@ -13,6 +13,7 @@ import {
   Keyboard,
   Alert,
   DeviceEventEmitter,
+  ActivityIndicator
 } from "react-native";
 import { BACKEND_URL } from "@env";
 import { Text, View } from "@gluestack-ui/themed";
@@ -21,10 +22,11 @@ import BackArrowIcon from "../../../icons/BackArrowIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SelectList } from "react-native-dropdown-select-list";
 
-const CreateNewWorkoutPlanScreen = ({ route, navigation }) => {
+const WorkoutGenerationScreen = ({ route, navigation }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [selected, setSelected] = useState("");
+  const [generatingWorkout, setGeneratingWorkout] = useState(false);
 
   const prevPage = route.params?.prevPage;
 
@@ -48,6 +50,7 @@ const CreateNewWorkoutPlanScreen = ({ route, navigation }) => {
   //callback function when button is pressed, makes call to API and handles response
   const handleGenerateWorkout = async () => {
     try {
+      setGeneratingWorkout(true);
       const userId = await AsyncStorage.getItem("user_id");
       const response = await axios.post(BACKEND_URL + "/workout/create", {
         userId,
@@ -59,7 +62,7 @@ const CreateNewWorkoutPlanScreen = ({ route, navigation }) => {
       });
       if (response.status == 201) {
         DeviceEventEmitter.emit("createWorkoutEvent");
-        navigation.navigate("PersonalProfile");
+        // navigation.navigate("PersonalProfile");
         // console.log("response: ", response)
         const workout_id = response.data.id;
         // console.log("workout_id: ", workout_id)
@@ -108,27 +111,12 @@ const CreateNewWorkoutPlanScreen = ({ route, navigation }) => {
               });
               addRoutingResponses.push(response.data);
             }
-            // todo: debug
-            // const addRoutinePromises = [
-            //   numbers[5], 
-            //   numbers[0], 
-            //   numbers[1], 
-            //   numbers[2], 
-            //   numbers[3], 
-            //   numbers[4], 
-            //   numbers[6], 
-            // ].map(async exercise_id => {
-            //   const response = await axios.post(BACKEND_URL + `/workout/routine/add`, {
-            //     workout_id : workout_id, 
-            //     exercise_id : exercise_id,
-            //   });
-            //   return response.data
-            // })
-            // const addRoutingResponses = await Promise.all(addRoutinePromises)
-            Alert.alert("Workout created successfully", "", [
+            setGeneratingWorkout(false);
+            Alert.alert("Workout generated successfully", "", [
               {
                 text: "Ok",
-                onPress: () => navigation.navigate("PersonalProfile"),
+                // onPress: () => navigation.navigate("PersonalProfile"),
+                onPress: () => navigation.goBack(),
               },
             ]);
           }
@@ -160,7 +148,18 @@ const CreateNewWorkoutPlanScreen = ({ route, navigation }) => {
       }
       console.log(error);
     }
+    setGeneratingWorkout(false);
   };
+
+  if (generatingWorkout) {
+    return (
+      <SafeAreaView>
+        <View style={styles.container}>
+          <ActivityIndicator size="large" color="#695acd" />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
@@ -250,7 +249,7 @@ const CreateNewWorkoutPlanScreen = ({ route, navigation }) => {
                 }
               }}
             >
-              <Text style={styles.saveButtonText}>Create</Text>
+              <Text style={styles.saveButtonText}>Generate</Text>
             </TouchableOpacity>
             {/* onPress={() => {
               navigation.dispatch(
@@ -339,4 +338,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreateNewWorkoutPlanScreen;
+export default WorkoutGenerationScreen;

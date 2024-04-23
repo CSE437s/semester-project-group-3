@@ -232,16 +232,16 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
               </Text>
               <TouchableOpacity
                 style={styles.contentContainerButton}
-                onPress={handleAddMoreButtonPress}
+                onPress={handleWorkoutGenerateButtonPress}
               >
-                <MaterialIcons name="add-circle" size={28} color="#6A5ACD" />
+                <MaterialIcons name="smart-toy" size={28} color="#6A5ACD" />
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.contentContainerButton}
-                onPress={handleWorkoutGenerateButtonPress}
+                onPress={handleAddMoreButtonPress}
               >
-                <MaterialIcons name="smart-toy" size={28} color="#6A5ACD" />
+                <MaterialIcons name="add-circle" size={28} color="#6A5ACD" />
               </TouchableOpacity>
             </View>
             {loading ? (

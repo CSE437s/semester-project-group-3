@@ -495,6 +495,14 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
                 {/* {activeTab === "favoriteExercises" && "Favorite Exercises"} */}
                 {activeTab === "posts" && "Posts"}
               </Text>
+              {activeTab === "workouts" && (
+                <TouchableOpacity
+                  style={styles.contentContainerButtonRobot}
+                  onPress={() => navigation.navigate("WorkoutGenerationScreen")}
+                >
+                  <MaterialIcons name="smart-toy" size={32} color="#6A5ACD" />
+                </TouchableOpacity>
+              )}
               <TouchableOpacity
                 style={styles.contentContainerButton}
                 onPress={handleAddMoreButtonPress}
@@ -792,6 +800,10 @@ const styles = StyleSheet.create({
   },
   inactiveUnderline: {
     height: 0,  
+  },
+  contentContainerButtonRobot: {
+    marginRight: 10,
+    marginTop: 3,
   },
 });
 
