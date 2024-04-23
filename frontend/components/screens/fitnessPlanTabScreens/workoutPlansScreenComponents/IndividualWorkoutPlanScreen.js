@@ -14,6 +14,7 @@ import {
   Button,
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
+  ActivityIndicator
 } from "react-native";
 import { Text, View, set } from "@gluestack-ui/themed";
 import { BACKEND_URL } from "@env";
@@ -561,8 +562,8 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
                 <></>
               ) : (
                 isOwnedByCurrentUser &&
-                recommendedExercises.length !== 0 &&
-                !loadingReccs && (
+                recommendedExercises.length !== 0 && (
+                !loadingReccs ? (
                   <View style={styles.bottomContent}>
                     <Text style={styles.exercisesText}>
                       Recommended Exercises
@@ -598,60 +599,68 @@ const IndividualWorkoutPlanScreen = ({ route, navigation }) => {
                       );
                     })}
                   </View>
-                )
+                ) : (
+                  // <ActivityIndicator size="large" color="#695acd" style={styles.recommendedExercisesLoadingIcon}/>
+                  <></>
+                ))
               )}
 
-              <View style={styles.commentsHeader}>
-                <Text style={styles.exercisesText}>Comments</Text>
-                {!addingComment ? (
-                  <TouchableOpacity
-                  style={styles.addIcon}
-                  onPress={() => {
-                    setAddingComment(true);
-                  }}
-                  >
-                    <MaterialIcons
-                      name="add-circle"
-                      size={32}
-                      color="#6A5ACD"
-                    />
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity
-                  style={styles.addIcon}
-                  onPress={() => {
-                    setAddingComment(false);
-                  }}
-                  >
-                    <MaterialIcons
-                      name="remove-circle"
-                      size={32}
-                      color="#6A5ACD"
-                    />
-                  </TouchableOpacity>
-                )}
-              </View>
-
-              <View styles={styles.commentContainer}>
-                {addingComment && (
-                    <View style={styles.newCommentContainer}>
-                      <TextInput
-                          style={styles.commentInput}
-                          onChangeText={setNewComment}
-                          value={newComment}
-                          placeholder="Write a comment..."
-                          onSubmitEditing={postComment}
-                      />
-                      <TouchableOpacity onPress={postComment} style={styles.sendIcon}>
-                          <MaterialCommunityIcons name="send" size={24} color="#695acd" />
+              {!addingWorkout && (
+                <>
+                  <View style={styles.commentsHeader}>
+                    <Text style={styles.exercisesText}>Comments</Text>
+                    {!addingComment ? (
+                      <TouchableOpacity
+                      style={styles.addIcon}
+                      onPress={() => {
+                        setAddingComment(true);
+                      }}
+                      >
+                        <MaterialIcons
+                          name="add-circle"
+                          size={32}
+                          color="#6A5ACD"
+                        />
                       </TouchableOpacity>
-                    </View>
-                )}
-                {comments?.length === 0 && !addingComment && (
-                  <Text style={styles.no_comments_text}>This workout plan does not have any comments yet, click the + to be the first.</Text>
-                )}
-                {comments.map((comment) => renderComment({item: comment}))}
-              </View>
+                    ) : (
+                      <TouchableOpacity
+                      style={styles.addIcon}
+                      onPress={() => {
+                        setAddingComment(false);
+                      }}
+                      >
+                        <MaterialIcons
+                          name="remove-circle"
+                          size={32}
+                          color="#6A5ACD"
+                        />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+
+                  <View styles={styles.commentContainer}>
+                    {addingComment && (
+                        <View style={styles.newCommentContainer}>
+                          <TextInput
+                              style={styles.commentInput}
+                              onChangeText={setNewComment}
+                              value={newComment}
+                              placeholder="Write a comment..."
+                              onSubmitEditing={postComment}
+                          />
+                          <TouchableOpacity onPress={postComment} style={styles.sendIcon}>
+                              <MaterialCommunityIcons name="send" size={24} color="#695acd" />
+                          </TouchableOpacity>
+                        </View>
+                    )}
+                    {comments?.length === 0 && !addingComment && (
+                      <Text style={styles.no_comments_text}>This workout plan does not have any comments yet, click the + to be the first.</Text>
+                    )}
+                    {comments.map((comment) => renderComment({item: comment}))}
+                  </View>
+                </>
+              )}
+              
               
             </View>
           )}
@@ -903,6 +912,9 @@ const styles = StyleSheet.create({
   },
   sendIcon: {
     marginRight: 4,
-  }
+  },
+  recommendedExercisesLoadingIcon: {
+    marginTop: 20,
+  },
 });
 export default IndividualWorkoutPlanScreen;
