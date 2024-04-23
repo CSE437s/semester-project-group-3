@@ -10,6 +10,7 @@ import { formatDistanceToNow, set } from "date-fns";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FooterTab from "../FooterTab";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import PostBlock from "../buildingBlocks/PostBlock";
 import WorkoutBlock from "../buildingBlocks/WorkoutBlock";
@@ -44,7 +45,6 @@ const FriendFeedScreen = ({ navigation }) => {
   // fetch workouts when page is navigated to
   useFocusEffect(
     useCallback(() => {
-      console.log("bm - in useFocusEffect useCallback");
       if (currentUserId) {
         console.log("bm - in useFocusEffect currentUserId: ", currentUserId);
         fetchFriendWorkouts();
@@ -81,6 +81,7 @@ const FriendFeedScreen = ({ navigation }) => {
           type: "workout",
           id: workout.id,
           username: workout.user.username,
+          userId: workout.user.id,
           name: workout.name,
           difficulty: workout.difficulty,
           description: workout.description,
@@ -110,6 +111,7 @@ const FriendFeedScreen = ({ navigation }) => {
           caption: post.caption,
           timeCreated: post.createdAt,
           username: post.user.username,
+          userId: post.user.id,
           likes: post.likes,
           comments: post.comments,
         };
@@ -121,12 +123,21 @@ const FriendFeedScreen = ({ navigation }) => {
     }
   }
 
+  const onNavigateToUserProfile = (userId) => {
+    if (userId === currentUserId) {
+      navigation.navigate("PersonalProfile");
+    } else {
+      console.log("bm - navigating to user profile with userId: ", userId)
+      navigation.navigate("UserProfile", { userId });
+    }
+  }
+
   // get posts every second (to allow for real time comment updating)
   // TODO this is a hacky solution, we should move to using websockets if time allows
   useEffect(() => {
     const intervalId = setInterval(async () => {
       if (currentUserId) {
-        console.log("fetching friend posts & workouts...")
+        // console.log("fetching friend posts & workouts...")
         fetchFriendPosts();
         fetchFriendWorkouts();
       }
@@ -157,12 +168,14 @@ const FriendFeedScreen = ({ navigation }) => {
         }
         return (
           <WorkoutBlock 
+            key={`workout-${item.id}-${item.comments.length}`}
             item={item}
             currentUserId={currentUserId}
             handleWorkoutPress={handleWorkoutPress}
             fromProfilePage={false}
             openCommentBlock={openWorkoutCommentBlock}
             setOpenCommentBlock={setOpenWorkoutCommentBlock}
+            onNavigateToUserProfile={onNavigateToUserProfile}
           />
         );
       case "post": 
@@ -173,6 +186,7 @@ const FriendFeedScreen = ({ navigation }) => {
             fromProfilePage={false}
             openCommentBlock={openPostCommentBlock}
             setOpenCommentBlock={setOpenPostCommentBlock}
+            onNavigateToUserProfile={onNavigateToUserProfile}
           />
         );
       default:
@@ -201,36 +215,51 @@ const FriendFeedScreen = ({ navigation }) => {
 
   if (!loading && workouts.length === 0 && posts.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
-        <MaterialCommunityIcons
-          name="weight-lifter"
-          size={48}
-          color={"black"}
-        />
-        <Text style={styles.welcomeText}>Welcome to your Feed!</Text>
-        <Text style={styles.subWelcomeText}>
-          {" "}
-          Workout plans or Posts created by accounts that you follow will be displayed
-          here
-        </Text>
+      <>
+        <SafeAreaView style={[styles.container]}>
+          <View style={styles.alignCenter}>
+            <MaterialCommunityIcons
+              name="weight-lifter"
+              size={48}
+              color={"black"}
+            />
+          </View>
+          <Text style={styles.welcomeText}>Welcome to your Feed!</Text>
+          <Text style={styles.subWelcomeText}>
+            {" "}
+            Workout plans or Posts created by accounts that you follow will be displayed
+            here
+          </Text>
+        
+        </SafeAreaView>
         <FooterTab focused="FriendFeed"></FooterTab>
-      </SafeAreaView>
+      </>
+      
     );
   }
 
   return (
     <>
-      {/* <TopBarMenu onSwitchPage={handleSwitchPage} /> */}
-      <SafeAreaView style={styles.container}>
-        <FlatList
-          data={sortData([...workouts, ...posts])}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderItem}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        />
-      </SafeAreaView>
+      
+      <View style={styles.container}>
+        <View style={styles.alignCenter}>
+          <Text style={styles.topText}>
+            Workout Plans & Posts From Friends
+          </Text>
+        </View>
+        
+        <KeyboardAwareScrollView>
+          <FlatList
+            data={sortData([...workouts, ...posts])}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderItem}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          />
+        </KeyboardAwareScrollView>
+        
+      </View>
       <FooterTab focused="FriendFeed"></FooterTab>
     </>
   );
@@ -240,8 +269,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
     paddingTop: "17%",
+    marginBottom: "18%",
+    width: '100%',
   },
   welcomeText: {
     fontSize: 22,
@@ -256,6 +286,14 @@ const styles = StyleSheet.create({
     color: "black",
     textAlign: "center",
     paddingHorizontal: 10,
+  },
+  topText: {
+    fontWeight: "bold",
+    marginBottom: 20,
+    fontSize: 18,
+  },
+  alignCenter: {
+    alignItems: "center",
   },
 });
 

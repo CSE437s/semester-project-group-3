@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   noResults: {
-    color: "#525252",
+    color: "#D3D3D3",
   },
   scroller: {
     marginTop: 5,

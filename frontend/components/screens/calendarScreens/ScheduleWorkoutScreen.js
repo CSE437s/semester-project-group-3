@@ -13,27 +13,36 @@ import {
   Keyboard,
   Alert,
   DeviceEventEmitter,
+  Platform
 } from "react-native";
 import { BACKEND_URL } from "@env";
 import { SelectList } from "react-native-dropdown-select-list";
 import { Text, View } from "@gluestack-ui/themed";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import {DateTimePicker, DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FontAwesome } from "@expo/vector-icons";
 
 const ScheduleWorkoutScreen = ({ route, navigation }) => {
   const onDate = route.params?.onDate;
+
+  console.log("bm - onDate: ", onDate);
 
   const [date, setDate] = useState(new Date(onDate));
   const [workouts, setWorkouts] = useState([]);
   const [selected, setSelected] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const [displayAndroidDateTimePicker, setDisplayAndroidDateTimePicker] = useState(false);
+
+
   const dismissKeyboard = () => {
     Keyboard.dismiss();
   };
 
   const onDateChange = (event, selectedDate) => {
-    setDate(selectedDate);
+    setDisplayAndroidDateTimePicker(false);
+    const d = selectedDate || date;
+    setDate(d);
   };
 
   const scheduleWorkout = async () => {
@@ -52,6 +61,15 @@ const ScheduleWorkoutScreen = ({ route, navigation }) => {
       Alert.alert("Error scheduling workout", "Please try again later");
     }
   };
+
+  const showAndroidDatePicker = () => {
+    DateTimePickerAndroid.open({
+      value: date,
+      onChange: onDateChange,
+      minimumDate: new Date(),
+      mode: "date",
+    })
+  }
 
   const fetchWorkouts = async () => {
     try {
@@ -80,6 +98,8 @@ const ScheduleWorkoutScreen = ({ route, navigation }) => {
     );
   }
 
+  console.log("about to render with displayAndroidDateTimePicker: ", displayAndroidDateTimePicker)
+
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <SafeAreaView>
@@ -88,12 +108,27 @@ const ScheduleWorkoutScreen = ({ route, navigation }) => {
           contentContainerStyle={styles.container}
         >
           <Text style={styles.titleText}> Schedule a Workout </Text>
-          <Text style={styles.subtitleText}>Date:</Text>
-          <DateTimePicker
-            value={date}
-            onChange={onDateChange}
-            minimumDate={new Date()}
-          ></DateTimePicker>
+          {Platform.OS === "ios" ? (
+            <Text style={styles.subtitleText}>Date: </Text>
+          ) : (
+            <View style={styles.dateContainer}>
+              <Text style={styles.subtitleText}>Date: {date.toDateString()}</Text>
+              <TouchableOpacity onPress={() => setDisplayAndroidDateTimePicker(true)} style={{paddingLeft: 10}}>
+                <FontAwesome name="edit" size={24} color="black" />
+              </TouchableOpacity>
+            </View>
+          )}
+          
+          {(Platform.OS === "ios") ? (
+              <DateTimePicker
+                value={date}
+                onChange={onDateChange}
+                minimumDate={new Date()}
+              ></DateTimePicker>
+            ) : (
+              displayAndroidDateTimePicker && (showAndroidDatePicker())
+          )}
+          
 
           <Text style={styles.subtitleText}>Workout:</Text>
           <SelectList
@@ -117,7 +152,7 @@ const ScheduleWorkoutScreen = ({ route, navigation }) => {
                 }
               }}
             >
-              <Text style={styles.saveButtonText}>Create</Text>
+              <Text style={styles.saveButtonText}>Schedule</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -134,6 +169,11 @@ const ScheduleWorkoutScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  dateContainer: {
+    flexDirection: 'row', 
+    alignItems: 'center',
+    marginBottom: 5,
+  },
   container: {
     display: "flex",
     flexDirection: "column",

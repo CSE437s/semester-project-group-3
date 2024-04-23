@@ -52,13 +52,10 @@ const CreateNewWorkoutPlanScreen = ({ route, navigation }) => {
       });
       if (response.status == 201) {
         DeviceEventEmitter.emit("createWorkoutEvent");
-        navigation.navigate("PersonalProfile");
-        // Alert.alert("Workout created successfully", "", [
-        //   {
-        //     text: "Ok",
-        //     onPress: () => navigation.navigate("PersonalProfile"),
-        //   },
-        // ]);
+        // navigation.goBack();
+        navigation.replace("IndividualWorkoutScreen", {
+          workout_id: response.data.id,
+        });
       }
     } catch (error) {
       console.log(
@@ -162,14 +159,6 @@ const CreateNewWorkoutPlanScreen = ({ route, navigation }) => {
             >
               <Text style={styles.saveButtonText}>Create</Text>
             </TouchableOpacity>
-            {/* onPress={() => {
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: prevPage,
-                  params: { prevPage: prevPage },
-                })
-              )
-            }} */}
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}
               onPress={() => navigation.goBack()}

@@ -735,6 +735,18 @@ app.get(`/workout/one/:workoutId`, async (req, res) => {
       include: {
         routines: true,
         user: true,
+        comments: {
+          include: {
+            user: {
+              select: {
+                username: true,
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'desc',
+          }
+        },
       },
     });
     res.status(200).json(result);
@@ -1017,6 +1029,7 @@ app.get(`/feed/workouts/:userId`, async (req, res) => {
         // we want the username of the workout owners as well
         user: {
           select: {
+            id: true,
             username: true,
           },
         },
@@ -1068,6 +1081,7 @@ app.get(`/feed/posts/:userId`, async (req, res) => {
       include: {
         user: {
           select: {
+            id: true,
             username: true,
           },
         },
@@ -1299,6 +1313,20 @@ app.post(`/workout/scheduled/set/uncomplete`, async (req, res) => {
   }
 });
 
+app.delete(`/workout/scheduled/:id`, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await prisma.scheduledWorkout.delete({
+      where: { id: parseInt(id) },
+    });
+    res.sendStatus(200);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
+  }
+});
+
 //Universal search based on textual similarity to query
 app.get(`/search/:query`, async (req, res) => {
   const { query } = req.params;
@@ -1360,6 +1388,23 @@ app.get(`/search/:query`, async (req, res) => {
     res.status(200).json(returnData);
   } catch (error) {
     res.sendStatus(404);
+  }
+});
+
+//Complete a workout
+app.post(`/workout/scheduled/complete`, async (req, res) => {
+  const { id } = req.body;
+
+  try {
+    const result = await prisma.scheduledWorkout.update({
+      where: { id: id },
+      data: { completion: "complete" },
+    });
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(400);
   }
 });
 

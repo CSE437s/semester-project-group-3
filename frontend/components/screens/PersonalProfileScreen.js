@@ -25,6 +25,8 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
 import * as ImagePicker from 'expo-image-picker';
 import WorkoutBlock from "../buildingBlocks/WorkoutBlock";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 
 import PostBlock from "../buildingBlocks/PostBlock";
 
@@ -42,7 +44,7 @@ import { Entypo } from "@expo/vector-icons";
 const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
   const [userData, setUserData] = useState(null); // note: workouts are included in userData
 
-  const [activeTab, setActiveTab] = useState("workouts"); // 'workouts' or 'favoriteExercises' or 'posts'
+  const [activeTab, setActiveTab] = useState("workouts"); // 'workouts' or 'posts'
 
   const [isLoading, setIsLoading] = useState(true);
   const [followers, setFollowers] = useState(0);
@@ -50,7 +52,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
   const [refreshing, setRefreshing] = useState(false);
 
   const [workouts, setWorkouts] = useState([]);
-  const [favoriteExercises, setFavoriteExercises] = useState([]);
+  // const [favoriteExercises, setFavoriteExercises] = useState([]);
   const [posts, setPosts] = useState([]);
 
   // state for letting user create a post
@@ -97,7 +99,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
   useFocusEffect(
     useCallback(() => {
       fetchUserData();
-      getFavoriteExercises();
+      // getFavoriteExercises();
       getPosts();
     }, [])
   );
@@ -122,26 +124,26 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
     });
     setWorkouts(parsedWorkouts);
 
-    getFavoriteExercises();
+    // getFavoriteExercises();
   }, [userData]);
 
-  const getFavoriteExercises = async () => {
-    try {
-      const response = await axios.get(
-        BACKEND_URL + `/exercises/saved/${userData.id}`
-      );
-      const parsedExercises = response.data.map((exercise) => {
-        return {
-          id: exercise.id,
-          name: exercise.name,
-          timeCreated: exercise.saved,
-        };
-      });
-      setFavoriteExercises(parsedExercises);
-    } catch (e) {
-      console.log("error fetching favorite exercises: ", e);
-    }
-  };
+  // const getFavoriteExercises = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       BACKEND_URL + `/exercises/saved/${userData.id}`
+  //     );
+  //     const parsedExercises = response.data.map((exercise) => {
+  //       return {
+  //         id: exercise.id,
+  //         name: exercise.name,
+  //         timeCreated: exercise.saved,
+  //       };
+  //     });
+  //     setFavoriteExercises(parsedExercises);
+  //   } catch (e) {
+  //     console.log("error fetching favorite exercises: ", e);
+  //   }
+  // };
 
   // get posts every second (to allow for real time comment updating)
   // TODO this is a hacky solution, we should move to using websockets if time allows
@@ -151,7 +153,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
       if (activeTab === "posts") {
         getPosts();
       } else if (activeTab === "workouts") {
-        console.log("fetching user data...")
+        // console.log("fetching user data...")
         fetchUserData();
       }
     }, 1000);
@@ -206,6 +208,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
 
     return (
       <WorkoutBlock 
+        key={`workout-${item.id}-${item.comments.length}`}
         item={item}
         currentUserId={userData.id}
         handleWorkoutPress={handleWorkoutPress}
@@ -273,6 +276,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
         onDeletePost={(id) => deletePost(item.id)}
         openCommentBlock={openPostCommentBlock}
         setOpenCommentBlock={setOpenPostCommentBlock}
+        onNavigateToUserProfile={onNavigateToUserProfile}
       />
     )
   }
@@ -296,7 +300,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchUserData();
-    await getFavoriteExercises();
+    // await getFavoriteExercises();
     setRefreshing(false);
   };
 
@@ -330,6 +334,10 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
       console.error(error);
     }
   };
+
+  const onNavigateToUserProfile = (userId) => {
+    navigation.navigate("UserProfile", { userId });
+  }
 
   const submitPost = async () => {
     const formData = new FormData();
@@ -422,6 +430,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
               size={30}
               color={activeTab === "workouts" ? "#6A5ACD" : "#aaa"} 
             />
+            <View style={activeTab === "workouts" ? styles.activeUnderline : styles.inactiveUnderline} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.icon}
@@ -430,13 +439,14 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
               setActiveTab("posts")
             }}
           >
-            <Entypo
-              name="camera"
+            <MaterialCommunityIcons
+              name="post-outline"
               size={30}
               color={activeTab === "posts" ? "#6A5ACD" : "#aaa"}
             />
+            <View style={activeTab === "posts" ? styles.activeUnderline : styles.inactiveUnderline} />
           </TouchableOpacity>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.icon}
             onPress={() => {
               setIsCreatingPost(false);
@@ -448,7 +458,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
               size={30}
               color={activeTab === "favoriteExercises" ? "#6A5ACD" : "#aaa"}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         <View style={styles.divider} />
@@ -462,10 +472,6 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
                 value={caption}
                 placeholder="What's on your mind?"
               />
-              {/* TODO: the image button should call pickImage once we get that working */}
-              <TouchableOpacity style={styles.postIconButton} onPress={() => {}}>
-                <MaterialCommunityIcons name={'file-image-plus'} size={28} color={'#666666'}/>
-              </TouchableOpacity>
               <TouchableOpacity style={styles.postIconButton} onPress={submitPost}>
                 <FontAwesome name={'send'} size={28} color={'#695acd'}/>
               </TouchableOpacity>
@@ -486,7 +492,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
             <View style={styles.contentContainerHeader}>
               <Text style={styles.contentContainerText}>
                 {activeTab === "workouts" && "Workout Plans"}
-                {activeTab === "favoriteExercises" && "Favorite Exercises"}
+                {/* {activeTab === "favoriteExercises" && "Favorite Exercises"} */}
                 {activeTab === "posts" && "Posts"}
               </Text>
               <TouchableOpacity
@@ -508,7 +514,7 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
                   }
                 />
               )}
-              {activeTab === "favoriteExercises" &&
+              {/* {activeTab === "favoriteExercises" &&
                 favoriteExercises.length > 0 && (
                   <FlatList
                     data={favoriteExercises}
@@ -521,31 +527,33 @@ const PersonalProfileScreen = ({ route, navigation, handleAuthChange }) => {
                       />
                     }
                   />
-                )}
+                )} */}
               {activeTab === "posts" && posts.length > 0 &&(
-                <FlatList
-                  data={posts}
-                  keyExtractor={(item) => item.id.toString()}
-                  renderItem={renderPostItem}
-                  refreshControl={
-                    <RefreshControl
-                      refreshing={refreshing}
-                      onRefresh={onRefresh}
-                    />
-                  }
-                />
+                <KeyboardAwareScrollView>
+                  <FlatList
+                    data={posts}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={renderPostItem}
+                    refreshControl={
+                      <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                      />
+                    }
+                  />
+                </KeyboardAwareScrollView>
               )}
             </View>
           </>
         )}
 
         
+      
       </SafeAreaView>
 
       {/* Footer Tab shouldn't get in the way when making a new post */}
-      {!keyboardVisible && (
-        <FooterTab focused={"PersonalProfile"}></FooterTab>
-      )}
+      <FooterTab focused={"PersonalProfile"}></FooterTab>
+
     </>
   );
 };
@@ -614,7 +622,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#6A5ACD",
     padding: 10,
     borderRadius: 5,
-    width: "50%",
+    width: "60%",
     marginTop: 5,
   },
   buttonText: {
@@ -641,7 +649,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     marginTop: 5,
-    marginBottom: "60%", // contols how close to the footerNavigator that the content (FlatLists) is
+    marginBottom: "81%", // contols how close to the footerNavigator that the content (FlatLists) is
   },
   workoutName: {
     fontWeight: "bold",
@@ -761,7 +769,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 20,
     borderRadius: 5,
-    width: '70%',
+    width: '80%',
     backgroundColor: "#f7f7f7",
   },
   postIconButton: {
@@ -775,7 +783,16 @@ const styles = StyleSheet.create({
   },
   postDeleteIcon: {
     marginTop: 5,
-  }
+  },
+  activeUnderline: {
+    height: 2,
+    width: '100%',
+    backgroundColor: '#6A5ACD',
+    marginTop: 2,
+  },
+  inactiveUnderline: {
+    height: 0,  
+  },
 });
 
 export default PersonalProfileScreen;

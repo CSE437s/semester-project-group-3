@@ -154,22 +154,22 @@ const RoutineInfo = ({
         {editing && (
           <>
             {!editingSetTopLevel && (
-              <>
+              <View style={styles.twoButtonContainer}>
                 <TouchableOpacity
-                  style={styles.addNewButton}
+                  style={styles.createNewSetButton}
                   onPress={handleAddSet}
                 >
-                  <Text style={styles.addNewText}>Create New Set</Text>
+                  <Text style={styles.transparentButtonText}>Add New Set</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.transparentButton}
+                  style={styles.saveChangesButton}
                   onPress={() => {
                     setEditing(false);
                   }}
                 >
-                  <Text style={styles.transparentButtonText}>Save Changes</Text>
+                  <Text style={styles.addNewText}>Save Changes</Text>
                 </TouchableOpacity>
-              </>
+              </View>
             )}
           </>
         )}
@@ -285,6 +285,14 @@ const styles = StyleSheet.create({
     marginBottom: "5%",
     backgroundColor: "white",
   },
+  twoButtonContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    flexDirection: "row",
+    paddingHorizontal: "10%",
+    marginTop: "5%",
+    backgroundColor: "white",
+  },
   seeDetailsButton: {
     borderWidth: 2,
     borderColor: "#000000",
@@ -330,6 +338,24 @@ const styles = StyleSheet.create({
     color: "#000",
     fontWeight: "bold",
     textAlign: "center",
+  },
+  saveChangesButton: {
+    borderWidth: 2,
+    borderColor: "#695acd",
+    borderRadius: 10,
+    backgroundColor: "#695acd",
+    width: "45%",
+    paddingVertical: 5,
+    alignItems: "center",
+  },
+  createNewSetButton: {
+    borderWidth: 2,
+    borderColor: "#000000",
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    alignItems: "center",
+    width: "45%",
   },
 });
 

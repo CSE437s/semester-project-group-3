@@ -10,6 +10,7 @@ import {
   Alert,
   ScrollView,
   Image,
+  Platform,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { getYoutubeMeta } from "react-native-youtube-iframe";
@@ -20,19 +21,35 @@ import { BACKEND_URL } from "@env";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { formatDistanceToNow } from "date-fns";
 import FooterTab from "../../FooterTab";
+import WorkoutBlock from "../../buildingBlocks/WorkoutBlock";
 
 const WorkoutPlansScreen = ({ route, navigation }) => {
+  const placeHolderImage = require("../../../assets/Weightlifter.jpeg");
+
   const [workoutPlans, setWorkoutPlans] = useState([]);
   const [created, setCreated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("workouts"); // 'workouts' or 'favoriteExercises'
   const [savedExercises, setSavedExercises] = useState([]);
   const [thumbnails, setThumbnails] = useState({});
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  // NOTE: this is deprecated (can no longer open comment blocks in the workout block)
+  //       however we have to keep this in to use WorkoutBlock until WorkoutBlock is rewritten
+  //       to not require these as props anymore
+  // -1 means no workout comment blocks are open, otherwise it is the id of the workout that has the comment block open
+  const [openWorkoutCommentBlock, setOpenWorkoutCommentBlock] = useState(-1);
 
   useFocusEffect(
     useCallback(() => {
-      setLoading(true);
-      fetchWorkoutPlans();
+      const getComponentData = async () => {
+        setLoading(true);
+        setCurrentUserId(await AsyncStorage.getItem("user_id"));
+        fetchWorkoutPlans();
+        loadSavedExercises();
+      }
+
+      getComponentData()
     }, [])
   );
 
@@ -46,28 +63,35 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
   }, [activeTab]);
 
   const fetchWorkoutPlans = async () => {
-    const userId = await AsyncStorage.getItem("user_id");
     try {
-      const response = await axios.get(BACKEND_URL + `/workout/many/${userId}`);
-      if (response.status == 200) {
-        setWorkoutPlans(
-          response.data.sort((a, b) => {
-            //Sort by recent
-            const dateA = new Date(a.time_created);
-            const dateB = new Date(b.time_created);
-            return dateB - dateA;
-          })
-        );
-        setLoading(false);
-      }
-    } catch (error) {
-      if (!error.response) {
-        Alert.alert("Server issue", "Please try again later");
-      } else {
-        setWorkoutPlans([]);
-      }
-      console.log(error);
+      // fetch user data
+      const response = await axios.get(
+        BACKEND_URL + `/user/${await AsyncStorage.getItem("user_id")}`
+      );
+      const parsedWorkouts = response.data.workouts.map((workout) => {
+        return {
+          id: workout.id,
+          username: workout.user.username,
+          name: workout.name,
+          difficulty: workout.difficulty,
+          description: workout.description,
+          timeCreated: workout.time_created,
+          likes: workout.likes,
+          comments: workout.comments
+        };
+      });
+      setWorkoutPlans(parsedWorkouts);
+      setLoading(false);
+    } catch (e) {
+      console.log("error fetching workout plans: ", e);
     }
+  }
+
+  const goToExercise = async (id) => {
+    const response = await axios.get(BACKEND_URL + `/exercises/one/${id}`);
+    navigation.navigate("ExerciseScreen", {
+      exerciseData: response.data,
+    });
   };
 
   const fetchThumbnails = async (data) => {
@@ -107,29 +131,49 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
     }
   };
 
-  const renderWorkoutItem = (item) => {
-    return (
-      <TouchableOpacity
-        key={item.id}
-        style={styles.workoutPlan}
-        onPress={() =>
-          navigation.navigate("IndividualWorkoutScreen", {
-            workout_id: item.id,
-          })
-        }
-      >
-        <View style={styles.workoutMainContent}>
-          <Text style={styles.workoutName}>{item.name}</Text>
-        </View>
+  // const renderWorkoutItem = (item) => {
+  //   return (
+  //     <TouchableOpacity
+  //       key={item.id}
+  //       style={styles.workoutPlan}
+  //       onPress={() =>
+  //         navigation.navigate("IndividualWorkoutScreen", {
+  //           workout_id: item.id,
+  //         })
+  //       }
+  //     >
+  //       <View style={styles.workoutMainContent}>
+  //         <Text style={styles.workoutName}>{item.name}</Text>
+  //       </View>
 
-        <Text style={styles.workoutTime}>
-          created{" "}
-          {formatDistanceToNow(new Date(item.time_created), {
-            addSuffix: true,
-          })}
-        </Text>
-      </TouchableOpacity>
-    );
+  //       <Text style={styles.workoutTime}>
+  //         created{" "}
+  //         {formatDistanceToNow(new Date(item.time_created), {
+  //           addSuffix: true,
+  //         })}
+  //       </Text>
+  //     </TouchableOpacity>
+  //   );
+  // };
+
+  const renderWorkoutItem = (item) => {
+    const handleWorkoutPress = () => {
+      navigation.navigate("IndividualWorkoutScreen", {workout_id: item.id});
+    }
+
+    if (currentUserId === null) return <Text>loading...</Text>;
+
+    return (
+      <WorkoutBlock 
+        key={`workout-${item.id}-${item.comments.length}`}
+        item={item}
+        currentUserId={currentUserId}
+        handleWorkoutPress={handleWorkoutPress}
+        fromProfilePage={true}
+        openCommentBlock={openWorkoutCommentBlock}
+        setOpenCommentBlock={setOpenWorkoutCommentBlock}
+      />
+    )
   };
 
   //Event listener for when new workout is created so that we update the list of workouts
@@ -149,7 +193,7 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
   return (
     <>
       <SafeAreaView>
-        <View style={styles.buttonsAndIconsContainer}>
+        <View style={Platform.OS == 'ios' ? (styles.buttonsAndIconsContainer) : (styles.buttonsAndIconsContainerAndroid)}>
           <TouchableOpacity
             style={activeTab === "workouts" ? styles.iconSelected : styles.icon}
             onPress={() => setActiveTab("workouts")}
@@ -176,7 +220,7 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
           </TouchableOpacity>
         </View>
         {activeTab === "workouts" ? (
-          <ScrollView>
+          <ScrollView style={Platform.OS === 'ios' ? (styles.scrollViewContainer) : (styles.scrollViewContainerAndroid)}>
             <View style={styles.contentContainerHeader}>
               <TouchableOpacity style={{ width: 28 }}></TouchableOpacity>
               <Text style={styles.contentContainerText}>
@@ -192,11 +236,9 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
             {loading ? (
               <Text>Loading workouts...</Text>
             ) : workoutPlans.length > 0 ? (
-              workoutPlans.map((item) => {
-                return renderWorkoutItem(item);
-              })
+              workoutPlans.map((item) => renderWorkoutItem(item))
             ) : (
-              <View style={styles.container}>
+              <View style={styles.noPlansContainer}>
                 <Text style={styles.space}>
                   You currently have no workout plans.
                 </Text>
@@ -219,7 +261,7 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
             {loading ? (
               <Text>Loading... </Text>
             ) : (
-              <ScrollView contentContainerStyle={styles.container}>
+              <ScrollView contentContainerStyle={Platform.OS === 'ios' ? (styles.container) : (styles.containerAndroid)}>
                 <View style={styles.contentContainerHeader}>
                   <TouchableOpacity style={{ width: 28 }}></TouchableOpacity>
                   <Text style={styles.contentContainerText}>
@@ -247,7 +289,7 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
                       key={exercise.id}
                       style={styles.exerciseContainer}
                       onPress={() => {
-                        handlePress(exercise.id);
+                        goToExercise(exercise.id);
                       }}
                     >
                       <Image
@@ -285,8 +327,22 @@ const WorkoutPlansScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  scrollViewContainer: {
+    marginBottom: "35%",
+  },
+  scrollViewContainerAndroid: {
+    marginBottom: '44%',
+  },
+  noPlansContainer: {
+    paddingBottom: "30%",
+    alignItems: "center",
+  },
   container: {
     paddingBottom: "30%",
+    alignItems: "center",
+  },
+  containerAndroid: {
+    paddingBottom: "45%",
     alignItems: "center",
   },
   createNewWorkoutPlanButton: {
@@ -372,6 +428,14 @@ const styles = StyleSheet.create({
     alignSelf: "center", // center icons horitzontally
     marginBottom: 10,
   },
+  buttonsAndIconsContainerAndroid: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    alignSelf: "center", // center icons horitzontally
+    marginBottom: 10,
+    marginTop: 30,
+  },
   icon: {
     marginTop: 10,
     width: "25%",
@@ -399,6 +463,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
+  },
+  placeholder: {
+    textAlign: "center",
+    marginTop: 20,
+    marginHorizontal: 30,
   },
 });
 
