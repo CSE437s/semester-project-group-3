@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  Alert,
 } from "react-native";
 import { Calendar, CalendarList, Agenda } from "react-native-calendars";
 import FooterTab from "../../FooterTab";
@@ -68,6 +69,8 @@ const CalendarScreen = ({ navigation }) => {
       const response = await axios.get(
         BACKEND_URL + `/workout/scheduled/${userId}`
       );
+
+      // console.log(response.data)
 
       await setScheduledWorkouts(response.data);
     } catch (error) {
